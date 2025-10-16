@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>রসায়ন — অধ্যায়ভিত্তিক নোট (কাজিম ভাইয়া)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root{ --bg1:#071220; --bg2:#08182a; --accent:#00e0ff; --card:rgba(255,255,255,0.03); --muted:#b7d3ee; --danger:#ff6b6b }
+    *{box-sizing:border-box}
+    body{font-family:'Noto Sans Bengali',sans-serif;margin:0;background:linear-gradient(135deg,var(--bg1),var(--bg2));color:#e9f6ff;min-height:100vh;overflow-x:hidden}
+    header{padding:18px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.04)}
+    header h1{margin:0;color:var(--accent)}
+    .container{max-width:1100px;margin:24px auto;padding:16px;position:relative}
+    .topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    .searchbar{display:flex;gap:8px;align-items:center}
+    input,button,select,textarea{font-family:inherit}
+    input[type=search]{padding:10px;border-radius:8px;border:none;background:rgba(255,255,255,0.03);color:inherit;min-width:260px}
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{background:rgba(255,255,255,0.03);padding:6px 10px;border-radius:999px;cursor:pointer}
+    .controls{display:flex;gap:8px;align-items:center}
+    .btn{padding:8px 12px;border-radius:8px;border:none;background:var(--accent);color:#012;font-weight:700;cursor:pointer}
+    .grid{margin-top:18px;display:grid;grid-template-columns:1fr;gap:12px}
+    .chapter{background:var(--card);padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+    .chapter-header{display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer}
+    .chapter-title{font-weight:700}
+    .progress{height:10px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden;width:160px}
+    .progress > span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#7afcff);width:0}
+    .chapter-body{margin-top:10px;display:none;padding-top:10px;border-top:1px dashed rgba(255,255,255,0.03)}
+    .card-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .small{color:var(--muted);font-size:0.95rem}
+    .pomodoro{position:fixed;right:18px;bottom:18px;background:var(--card);padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.04);width:220px}
+    .timer{font-size:1.3rem;font-weight:700;text-align:center}
+    .top-right{display:flex;gap:8px;align-items:center}
+    @media(max-width:760px){.topbar{flex-direction:column;align-items:stretch}}
+
+    /* decorative molecules + chemistry animation */
+    .molecules{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:0.18}
+    .molecules .particle{position:absolute;border-radius:50%;background:radial-gradient(circle at 30% 30%,#7afcff,#00e0ff);box-shadow:0 0 18px rgba(0,224,255,0.45);mix-blend-mode:screen}
+
+    /* orbiting atom animation */
+    .chem-area{position:fixed;right:8px;top:120px;width:220px;height:220px;pointer-events:none;z-index:2}
+    .atom{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+    .nucleus{width:24px;height:24px;border-radius:50%;background:linear-gradient(90deg,#ffd37a,#ff9f6b);box-shadow:0 6px 18px rgba(255,160,80,0.12)}
+    .orbit{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%}
+    .electron{position:absolute;width:10px;height:10px;border-radius:50%;background:linear-gradient(90deg,#6ef3c5,#00e0ff);box-shadow:0 4px 12px rgba(0,224,255,0.3)}
+
+    /* orbit sizes and durations */
+    .orbit.orb1{width:80px;height:80px;animation:spin 6s linear infinite}
+    .orbit.orb2{width:120px;height:120px;animation:spin 10s linear reverse infinite}
+    .orbit.orb3{width:160px;height:160px;animation:spin 14s linear infinite}
+    .orbit .electron{top:0;left:50%;transform:translate(-50%, -50%)}
+    @keyframes spin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+    /* audio visualizer pulse */
+    .audio-indicator{position:fixed;left:18px;top:18px;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);z-index:30}
+    .audio-indicator.playing{box-shadow:0 0 24px rgba(0,224,255,0.18);animation:beat 1s infinite}
+    @keyframes beat{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+
+    /* modal */
+    .overlay{position:fixed;inset:0;background:rgba(1,6,12,0.65);display:flex;align-items:center;justify-content:center;z-index:40}
+    .modal{background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.02));padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.04);width:360px;max-width:92%;box-shadow:0 12px 40px rgba(0,0,0,0.6)}
+    .modal h4{margin:0 0 8px}
+    .modal .hint{color:var(--muted);font-size:0.95rem;margin-bottom:8px}
+    .modal input{width:100%;padding:10px;border-radius:8px;border:none;background:rgba(255,255,255,0.02);color:inherit}
+    .modal .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+    .msg{margin-top:8px;color:var(--danger);font-weight:700}
+    .success{color:#6ef3c5}
+    @keyframes shake{0%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-8px)}80%{transform:translateX(8px)}100%{transform:translateX(0)}}
+  </style>
+</head>
+<body>
+  <div class="molecules" aria-hidden="true"></div>
+  <header>
+    <h1>এসএসসি রসায়ন — অধ্যায়ভিত্তিক নোট</h1>
+    <p class="small">প্রস্তুতকারক: কাজিম নাহিয়ান • সকল নোট PDF (অধ্যায়ভিত্তিক)</p>
+  </header>
+
+  <main class="container">
+
+    <!-- Password card -->
+    <section class="password-card" id="passwordCard" aria-live="polite">
+      <h3>নোটগুলিতে অ্যাক্সেস করতে পাসওয়ার্ড দিন</h3>
+      <div class="password-input">
+        <input id="passwordField" type="password" placeholder="পাসওয়ার্ড লিখুন">
+        <button id="unlockBtn" class="btn">প্রবেশ</button>
+        <button id="showBtn" class="btn">দেখা</button>
+      </div>
+      <p class="small">লিংক দেখতে পাসওয়ার্ড আবশ্যক।</p>
+    </section>
+
+    <div class="topbar">
+      <div class="searchbar">
+        <input id="searchInput" type="search" placeholder="নোট খুঁজুন — টপিক বা শিরোনাম লিখুন..." disabled>
+        <select id="typeFilter" disabled><option value="all">সব</option><option value="note">নোট</option></select>
+        <button class="btn" id="clearBtn" disabled>সাফ</button>
+      </div>
+      <div class="top-right">
+        <div id="quote" class="small">রেডি... (লিংক আনলক করার জন্য পাসওয়ার্ড দিন)</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="audioFile" type="file" accept="audio/*" title="লোকাল ব্যাকগ্রাউন্ড সাউন্ড নির্বাচন করুন">
+          <button id="soundToggle" class="btn">সাউন্ড চালু</button>
+          <button class="btn" id="modeBtn">ডার্ক/লাইট</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:10px" class="chips" id="tagList"></div>
+
+    <!-- Chapters grid (links hidden until unlock) -->
+    <section class="grid" id="chaptersGrid" aria-live="polite"></section>
+
+  </main>
+
+  <!-- atom animation area -->
+  <div class="chem-area" aria-hidden="true">
+    <div class="atom" style="width:220px;height:220px">
+      <div class="nucleus"></div>
+      <div class="orbit orb1"><div class="electron"></div></div>
+      <div class="orbit orb2"><div class="electron"></div></div>
+      <div class="orbit orb3"><div class="electron"></div></div>
+    </div>
+  </div>
+
+  <!-- audio indicator -->
+  <div class="audio-indicator" id="audioIndicator" title="প্লে/পজ দেখায়">
+    🔊
+  </div>
+
+  <!-- password modal (shown when clicking a chapter) -->
+  <div id="pwOverlay" class="overlay" style="display:none">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="pwTitle">
+      <h4 id="pwTitle">এই অধ্যায়টি খুলতে পাসওয়ার্ড দিন</h4>
+      <div class="hint">তথ্য খোলার আগে সঠিক পাসওয়ার্ড দিন — ভুল করলে সীমিত প্রচেষ্টা থাকবে।</div>
+      <input id="modalPassword" type="password" placeholder="পাসওয়ার্ড লিখুন">
+      <div class="msg" id="modalMsg" aria-live="polite"></div>
+      <div class="actions">
+        <button class="btn" id="modalCancel">বাতিল</button>
+        <button class="btn" id="modalOpen">এখনই খুলুন</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pomodoro" id="pomodoro">
+    <div style="display:flex;justify-content:space-between;align-items:center"><strong>Pomodoro</strong><button id="pomClose" class="btn" style="padding:6px">X</button></div>
+    <div class="timer" id="timer">25:00</div>
+    <div style="display:flex;gap:8px;margin-top:8px;justify-content:center">
+      <button class="btn" id="startPom">শুরু</button>
+      <button class="btn" id="resetPom">রিসেট</button>
+    </div>
+    <div class="small" style="margin-top:8px;text-align:center">স্টাডি:25m / ব্রেক:5m</div>
+  </div>
+
+  <!-- background audio element (will be set when user selects a file) -->
+  <audio id="bgAudio" loop></audio>
+
+  <script>
+    // =======================
+    // Config
+    // =======================
+    const passwordValue = 'chem2025'; // unlock password
+
+    // chapters with provided links
+    const chapters = [
+      {id:1,title:'অধ্যায় ১ — রসায়নের ধারণা',tags:['dharona'],items:[{type:'note',title:'PDF নোট',link:'https://drive.google.com/drive/folders/1Ds1yv14TW_U_fEAQ1CmGNVGWCLsu3mZR?usp=drive_link'}]},
+      {id:2,title:'অধ্যায় ২ — পদার্থের অবস্থা',tags:['state'],items:[{type:'note',title:'PDF নোট',link:'https://drive.google.com/drive/folders/10VaPzj7WFdz5bLKWtMWC5FbcAdFPrK9b?usp=drive_link'}]},
+      {id:3,title:'অধ্যায় ৩ — পদার্থের গঠন',tags:['structure'],items:[{type:'note',title:'PDF নোট',link:'https://drive.google.com/drive/folders/1bqV_T9nmr9tR4nlpLbZIOQyEa_Xs0zLB?usp=drive_link'}]},
+      {id:4,title:'অধ্যায় ৪ — পর্যায় সারণি',tags:['periodic'],items:[{type:'note',title:'PDF নোট',link:'https://drive.google.com/drive/folders/10xSn6i4Rpsz2lTUEUZDwHcb_RcHg4Atk?usp=drive_link'}]},
+      {id:5,title:'অধ্যায় ৫ — রাসায়নিক বন্ধন',tags:['bond'],items:[{type:'note',title:'PDF নোট',link:'https://drive.google.com/drive/folders/13AhbHSl_0ZinblLKlKqQVV6JWUNNTmux?usp=drive_link'}]},
+      {id:6,title:'অধ্যায় ৬ — মোলের ধারণা ও রাসায়নিক গণনা',tags:['mole'],items:[{type:'note',title:'PDF নোট',link:'https://drive.google.com/drive/folders/1Hq8zkRDLcnCZIwuoRhe9BkeAhF-ffW_h?usp=drive_link'}]},
+      {id:7,title:'অধ্যায় ৭ — রাসায়নিক বিক্রিয়া',tags:['reaction'],items:[{type:'note',title:'PDF নোট',link:'https://drive.google.com/drive/folders/1qlsKEjrqASsRC_W7cPiqNrhX_JPahoAH?usp=drive_link'}]},
+      {id:8,title:'অধ্যায় ৮ — রসায়ন ও শক্তি',tags:['energy'],items:[{type:'note',title:'PDF নোট',link:'https://drive.google.com/drive/folders/13XBRj19VB8wdPC1hfi7Bss2JblTPKJFk?usp=drive_link'}]},
+      {id:9,title:'অধ্যায় ৯ — এসিড-ক্ষারক সমতা',tags:['acid'],items:[{type:'note',title:'PDF নোট',link:'https://drive.google.com/drive/folders/1yTXT_DG7MGhtEVTEiWig97sd61ORucgN?usp=drive_link'}]},
+      {id:10,title:'অধ্যায় ১০ — খনিজ সম্পদঃ ধাতু ও অধাতু',tags:['mineral'],items:[{type:'note',title:'PDF নোট',link:'https://drive.google.com/drive/folders/1Ii6tbS5hB6tEJBHf4LMWepluDKYRBrUF?usp=drive_link'}]},
+      {id:11,title:'অধ্যায় ১১ — খনিজ সম্পদঃ জীবাশ্ম',tags:['fossil'],items:[{type:'note',title:'PDF নোট',link:'https://drive.google.com/drive/folders/18Yp5bORxS-kZAy4I-A-3wVnFGZGATRNC?usp=drive_link'}]},
+      {id:12,title:'অধ্যায় ১২ — আমাদের জীবনে রসায়ন',tags:['life'],items:[{type:'note',title:'PDF নোট',link:'https://drive.google.com/drive/folders/1ahUumVvXBiyy1Urug5cjM5jturpqwq5_?usp=drive_link'}]}
+    ];
+
+    // DOM
+    const passwordField = document.getElementById('passwordField');
+    const unlockBtn = document.getElementById('unlockBtn');
+    const showBtn = document.getElementById('showBtn');
+    const searchInput = document.getElementById('searchInput');
+    const typeFilter = document.getElementById('typeFilter');
+    const clearBtn = document.getElementById('clearBtn');
+    const quoteEl = document.getElementById('quote');
+    const chaptersGrid = document.getElementById('chaptersGrid');
+    const tagList = document.getElementById('tagList');
+    const pwOverlay = document.getElementById('pwOverlay');
+    const modalPassword = document.getElementById('modalPassword');
+    const modalMsg = document.getElementById('modalMsg');
+    const modalOpen = document.getElementById('modalOpen');
+    const modalCancel = document.getElementById('modalCancel');
+    const audioFile = document.getElementById('audioFile');
+    const bgAudio = document.getElementById('bgAudio');
+    const soundToggle = document.getElementById('soundToggle');
+    const audioIndicator = document.getElementById('audioIndicator');
+
+    // helper progress
+    function saveProgress(id,percent){ localStorage.setItem('chap_progress_'+id,percent); }
+    function getProgress(id){ return Number(localStorage.getItem('chap_progress_'+id) || 0); }
+
+    // build tag list
+    const tagsSet = new Set(); chapters.forEach(c=> c.tags.forEach(t=>tagsSet.add(t)));
+    Array.from(tagsSet).forEach(t=>{ const el = document.createElement('div'); el.className='chip'; el.textContent = '#'+t; el.dataset.tag=t; el.addEventListener('click',()=>{ searchInput.value=''; typeFilter.value='all'; applyFilters(); highlightTag(t); }); tagList.appendChild(el); });
+
+    function highlightTag(t){ const el = document.querySelector(`.chapter[data-tags*="${t}"]`); if(el) el.scrollIntoView({behavior:'smooth',block:'center'}); }
+
+    // modal state
+    let modalTargetLink = null; let attempts = 0; const maxAttempts = 5; let lockUntil = 0;
+
+    function openModalForLink(link){ // open modal with focus
+      if(Date.now() < lockUntil){ const s = Math.ceil((lockUntil - Date.now())/1000); modalMsg.textContent = `অনেক ভুল প্রচেষ্টা— ${s} সেকেন্ড পর আবার চেষ্টা করো।`; modalMsg.style.color='var(--danger)'; pwOverlay.style.display='flex'; modalPassword.disabled=true; modalOpen.disabled=true; return; }
+      modalTargetLink = link; modalPassword.value=''; modalMsg.textContent=''; modalMsg.style.color='var(--danger)'; pwOverlay.style.display='flex'; setTimeout(()=> modalPassword.focus(),120);
+    }
+    function closeModal(){ pwOverlay.style.display='none'; modalTargetLink=null; modalPassword.value=''; modalMsg.textContent=''; modalPassword.disabled=false; modalOpen.disabled=false; }
+
+    modalCancel.addEventListener('click', ()=>{ closeModal(); });
+    modalOpen.addEventListener('click', ()=>{ const v = modalPassword.value.trim(); if(!v){ modalMsg.textContent='পাসওয়ার্ড লিখো'; modalMsg.style.color='var(--danger)'; shakeModal(); return; }
+      if(Date.now() < lockUntil){ const s = Math.ceil((lockUntil - Date.now())/1000); modalMsg.textContent = `অনেক ভুল প্রচেষ্টা— ${s} সেকেন্ড পর আবার চেষ্টা করো।`; modalMsg.style.color='var(--danger)'; return; }
+      if(v === passwordValue){ // success
+        modalMsg.textContent = 'সফলভাবে ভেরিফাই করা হলো — লিংক খুলে দেওয়া হচ্ছে।'; modalMsg.style.color='var(--success)'; attempts = 0; closeModal(); window.open(modalTargetLink,'_blank'); localStorage.setItem('chem_notes_unlocked','1'); onUnlock(); }
+      else { attempts++; const left = Math.max(0, maxAttempts - attempts); modalMsg.textContent = `ভুল পাসওয়ার্ড — ${left} প্রচেষ্টা বাকি`; modalMsg.style.color='var(--danger)'; shakeModal(); if(attempts >= maxAttempts){ lockUntil = Date.now() + 30*1000; modalMsg.textContent = `অনেক ভুল প্রচেষ্টা— 30 সেকেন্ড পর আবার চেষ্টা করো।`; modalPassword.disabled=true; modalOpen.disabled=true; setTimeout(()=>{ modalPassword.disabled=false; modalOpen.disabled=false; modalMsg.textContent=''; attempts=0; lockUntil=0; },30000); } }
+    });
+
+    function shakeModal(){ const m = document.querySelector('.modal'); m.style.animation='shake 360ms'; setTimeout(()=> m.style.animation='',400); }
+
+    // render chapters (links hidden by default until unlocked)
+    function renderChapters(allowLinks=false){ chaptersGrid.innerHTML=''; chapters.forEach(ch=>{
+      const card = document.createElement('section'); card.className='chapter'; card.dataset.tags = ch.tags.join(','); card.dataset.id = ch.id;
+      const header = document.createElement('div'); header.className='chapter-header';
+      const left = document.createElement('div'); left.style.display='flex'; left.style.alignItems='center'; left.style.gap='12px';
+      const title = document.createElement('div'); title.className='chapter-title'; title.textContent = ch.title; title.style.cursor = 'pointer';
+      const progress = document.createElement('div'); progress.className='progress'; progress.innerHTML = '<span style="width:'+getProgress(ch.id)+'%"></span>';
+      left.appendChild(title); left.appendChild(progress);
+      const right = document.createElement('div'); right.style.display='flex'; right.style.alignItems='center'; right.style.gap='8px';
+      const expandBtn = document.createElement('button'); expandBtn.className='btn'; expandBtn.textContent='খুলো';
+      const markDone = document.createElement('button'); markDone.className='btn'; markDone.textContent='টিক ✔';
+      right.appendChild(expandBtn); right.appendChild(markDone);
+      header.appendChild(left); header.appendChild(right);
+      card.appendChild(header);
+
+      const body = document.createElement('div'); body.className='chapter-body';
+      const row = document.createElement('div'); row.className='card-row';
+      // if allowed, show real link, else show locked notice
+      ch.items.forEach(it=>{
+        const a = document.createElement('a'); a.className='chip'; a.target='_blank'; a.rel='noopener';
+        if(allowLinks){ a.href = it.link; a.textContent = '📄 ' + it.title; }
+        else { a.href = '#'; a.textContent = '🔒 লিংক লকড — পাসওয়ার্ড দিন'; a.addEventListener('click',(e)=>{ e.preventDefault(); openModalForLink(it.link); }); }
+        row.appendChild(a);
+      });
+      body.appendChild(row);
+
+      const bodyCtrl = document.createElement('div'); bodyCtrl.style.marginTop='8px'; bodyCtrl.innerHTML = '<div class="small">এই অধ্যায়ের প্রগ্রেস আপডেট করুন: <input type="range" min="0" max="100" value="'+getProgress(ch.id)+'" data-id="'+ch.id+'"> <span class="small progressVal">'+getProgress(ch.id)+'%</span></div>';
+      body.appendChild(bodyCtrl);
+
+      card.appendChild(body);
+      chaptersGrid.appendChild(card);
+
+      // events
+      // title click: open modal to verify before opening
+      title.addEventListener('click', ()=>{
+        const link = ch.items && ch.items[0] && ch.items[0].link;
+        if(!link){ alert('এই অধ্যায়টির লিংক এখনও যোগ করা হয়নি।'); return; }
+        openModalForLink(link);
+      });
+
+      expandBtn.addEventListener('click', ()=>{ const isOpen = body.style.display==='block'; body.style.display = isOpen? 'none':'block'; expandBtn.textContent = isOpen? 'খুলো':'বন্ধ'; });
+      markDone.addEventListener('click', ()=>{ saveProgress(ch.id,100); body.querySelector('input[type=range]').value = 100; body.querySelector('.progressVal').textContent = '100%'; card.querySelector('.progress > span').style.width='100%'; });
+      const range = body.querySelector('input[type=range]'); range.addEventListener('input', (e)=>{ const v = e.target.value; saveProgress(ch.id,v); card.querySelector('.progress > span').style.width = v+'%'; body.querySelector('.progressVal').textContent = v+'%'; });
+    }); }
+
+    // initial render without links
+    renderChapters(false);
+
+    // apply filters
+    function applyFilters(){ const q = searchInput.value.trim().toLowerCase(); const type = typeFilter.value; document.querySelectorAll('.chapter').forEach(chEl=>{
+      const title = chEl.querySelector('.chapter-title').textContent.toLowerCase(); const tags = chEl.dataset.tags || '';
+      let match = (!q || title.includes(q) || tags.includes(q));
+      if(type !== 'all'){
+        const has = Array.from(chEl.querySelectorAll('.card-row a')).some(a=> a.textContent.toLowerCase().includes('['+type+']'));
+        if(!has) match = false;
+      }
+      chEl.style.display = match? 'block':'none';
+    }); }
+
+    searchInput.addEventListener('input', applyFilters); typeFilter.addEventListener('change', applyFilters); clearBtn.addEventListener('click', ()=>{ searchInput.value=''; typeFilter.value='all'; applyFilters(); });
+
+    // unlock logic
+    unlockBtn.addEventListener('click', ()=>{
+      const v = passwordField.value.trim(); if(!v){ alert('পাসওয়ার্ড লিখুন'); return; }
+      if(v === passwordValue){ localStorage.setItem('chem_notes_unlocked','1'); onUnlock(); showToast('সফলভাবে আনলক করা হয়েছে — এখন লিংক দেখা যাবে'); }
+      else { alert('ভুল পাসওয়ার্ড'); }
+    });
+    showBtn.addEventListener('click', ()=>{ if(passwordField.type==='password'){ passwordField.type='text'; showBtn.textContent='লুকাও'; } else { passwordField.type='password'; showBtn.textContent='দেখাও'; } });
+
+    function onUnlock(){ // enable search & filters
+      document.getElementById('passwordCard').style.display='none'; searchInput.disabled=false; typeFilter.disabled=false; clearBtn.disabled=false; quoteEl.textContent='লিংক আনলক করা হয়েছে — নোট খুলে পড়ো।'; renderChapters(true); applyFilters(); }
+
+    // auto-unlock if saved
+    window.addEventListener('load', ()=>{
+      if(localStorage.getItem('chem_notes_unlocked') === '1') onUnlock();
+    });
+
+    // simple quotes
+    const quotes = ['"রসায়ন শেখা মানে কল্পনা ও বাস্তবের মিল"','"প্রতিটি সূত্র মনে করো — একটি হাতিয়ার"','"প্রশ্ন করো, বুঝার চেষ্টা করো — এটাই বিজ্ঞান"'];
+    document.getElementById('quote').textContent = quotes[Math.floor(Math.random()*quotes.length)];
+
+    // Pomodoro (same as before)
+    let studySeconds = 25*60; let breakSeconds = 5*60; let timerInterval = null; let isStudy = true; const timerEl = document.getElementById('timer');
+    const startBtn = document.getElementById('startPom'); const resetBtn = document.getElementById('resetPom'); const pomClose = document.getElementById('pomClose');
+    function formatTime(s){ const m = Math.floor(s/60); const sec = s%60; return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0'); }
+    function updateTimerDisplay(s){ timerEl.textContent = formatTime(s); }
+    function startTimer(){ if(timerInterval) return; let remaining = isStudy? Number(localStorage.getItem('study_remaining')||studySeconds) : Number(localStorage.getItem('break_remaining')||breakSeconds);
+      timerInterval = setInterval(()=>{ remaining--; if(remaining<=0){ clearInterval(timerInterval); timerInterval=null; if(Notification.permission==='granted') new Notification(isStudy? 'স্টাডি শেষ':'ব্রেক শেষ', {body: isStudy? 'বিরতির সময় নাও!' : 'পড়ে খেলা শুরু করো!'}); isStudy = !isStudy; localStorage.removeItem(isStudy? 'break_remaining':'study_remaining'); startTimer(); return; } if(isStudy) localStorage.setItem('study_remaining',remaining); else localStorage.setItem('break_remaining',remaining); updateTimerDisplay(remaining); },1000);
+    }
+    startBtn.addEventListener('click', ()=>{ if(Notification && Notification.permission!=='granted') Notification.requestPermission(); startTimer(); });
+    resetBtn.addEventListener('click', ()=>{ clearInterval(timerInterval); timerInterval=null; isStudy=true; localStorage.removeItem('study_remaining'); localStorage.removeItem('break_remaining'); updateTimerDisplay(studySeconds); });
+    pomClose.addEventListener('click', ()=>{ document.getElementById('pomodoro').style.display='none'; });
+    updateTimerDisplay(Number(localStorage.getItem('study_remaining')||studySeconds));
+
+    // animated molecules (more chemistry-themed)
+    (function makeMols(){ const wrapper = document.querySelector('.molecules'); for(let i=0;i<32;i++){ const s = document.createElement('div'); s.className='particle'; const size = 6 + Math.random()*22; s.style.width = size+'px'; s.style.height = size+'px'; s.style.left = Math.random()*100+'%'; s.style.top = Math.random()*100+'%'; s.style.opacity = 0.25 + Math.random()*0.6; s.style.transform = 'translateY(0)'; s.style.transition = 'transform '+(8+Math.random()*18)+'s linear'; wrapper.appendChild(s); setTimeout(()=> s.style.transform = 'translateY(-140vh) translateX('+ (Math.random()*40-20) +'vw)',50); setInterval(()=>{ s.style.left = Math.random()*100+'%'; s.style.top = Math.random()*120+'%'; s.style.transform = 'translateY(-140vh) translateX('+ (Math.random()*40-20) +'vw)'; },12000 + Math.random()*6000); } })();
+
+    // audio file selection + control
+    audioFile.addEventListener('change', (e)=>{
+      const f = e.target.files[0]; if(!f) return; const url = URL.createObjectURL(f); bgAudio.src = url; bgAudio.play().then(()=>{ soundToggle.textContent = 'সাউন্ড বন্ধ'; audioIndicator.classList.add('playing'); }).catch(()=>{});
+    });
+    soundToggle.addEventListener('click', ()=>{
+      if(!bgAudio.src) { alert('প্রথমে লোকাল সাউন্ড ফাইল নির্বাচন করো (এখানে)।'); return; }
+      if(bgAudio.paused){ bgAudio.play(); soundToggle.textContent = 'সাউন্ড বন্ধ'; audioIndicator.classList.add('playing'); }
+      else { bgAudio.pause(); soundToggle.textContent = 'সাউন্ড চালু'; audioIndicator.classList.remove('playing'); }
+    });
+    bgAudio.addEventListener('ended', ()=> audioIndicator.classList.remove('playing'));
+
+    // dark/light toggle
+    const modeBtn = document.getElementById('modeBtn'); modeBtn.addEventListener('click', ()=>{ document.documentElement.classList.toggle('lightmode'); if(document.documentElement.classList.contains('lightmode')){ document.body.style.background = 'linear-gradient(135deg,#f7fbff,#eef7ff)'; document.body.style.color='#012'; } else { document.body.style.background = 'linear-gradient(135deg,var(--bg1),var(--bg2))'; document.body.style.color='#e9f6ff'; } });
+
+    // small toast
+    function showToast(msg,success=false){ const t = document.createElement('div'); t.textContent = msg; t.style.position='fixed'; t.style.bottom='24px'; t.style.left='50%'; t.style.transform='translateX(-50%)'; t.style.background='rgba(0,0,0,0.6)'; t.style.color='white'; t.style.padding='10px 14px'; t.style.borderRadius='8px'; t.style.zIndex=60; if(success) t.style.background='linear-gradient(90deg,#6ef3c5,#00e0ff)'; document.body.appendChild(t); setTimeout(()=> t.style.opacity='0',1600); setTimeout(()=> document.body.removeChild(t),2400); }
+
+  </script>
+</body>
+</html>
