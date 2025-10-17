@@ -1,868 +1,639 @@
 <!doctype html>
 <html lang="bn">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>কাজিম ভাইয়ের অধ্যয়ন সহায়ক ওয়েবঅ্যাপ</title>
-  <style>
-    /* ===========================
-       গ্লোবাল স্টাইল ও রং
-       =========================== */
-    :root{
-      --bg:#f5fbff;
-      --card:#ffffff;
-      --accent:#4aa3ff;
-      --accent-2:#2e82d6;
-      --muted:#6b7280;
-      --danger:#e74c3c;
-      --glass: rgba(255,255,255,0.7);
-      --shadow: 0 6px 18px rgba(46,130,214,0.12);
-      --glass-2: rgba(74,163,255,0.06);
-      --success:#2ecc71;
-      --soft-blue: linear-gradient(135deg,#e9f6ff,#f1fbff);
-      --radius:12px;
-      font-family: 'Noto Sans Bengali', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>কাজিম ভাইয়ের অধ্যয়ন সহায়ক</title>
+<style>
+/* ========================
+   রং, ফন্ট, সাধারণ সেটিং
+   ======================== */
+:root{
+  --accent:#3ea0ff;
+  --accent-2:#236fbf;
+  --muted:#556677;
+  --danger:#e04b4b;
+  --card-bg: rgba(255,255,255,0.78);
+  --glass: rgba(255,255,255,0.5);
+  --radius:12px;
+  font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Bengali",Arial;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: linear-gradient(180deg,#e9f6ff 0%, #f7fdff 60%);
+  color:#042033;
+  -webkit-font-smoothing:antialiased;
+  padding:28px;
+}
 
-    html,body{height:100%;}
-    body{
-      margin:0;
-      min-height:100%;
-      background:var(--soft-blue);
-      color:#0b2540;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      display:flex;
-      align-items:flex-start;
-      justify-content:center;
-      padding:28px;
-      box-sizing:border-box;
-    }
+/* ========================
+   ব্যাকগ্রাউন্ড: chemistry animation
+   - subtle animated atoms / molecules using SVG + CSS
+   ======================== */
+.bg-canvas{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  overflow:hidden;
+}
 
-    /* কনটেইনার */
-    .wrapper{
-      width:100%;
-      max-width:980px;
-      background:var(--card);
-      border-radius:16px;
-      box-shadow:var(--shadow);
-      padding:20px;
-      box-sizing:border-box;
-      display:grid;
-      grid-template-columns:1fr 360px;
-      gap:18px;
-      align-items:start;
-    }
+/* আকর্ষণীয় কিছু ভাসমান 'অ্যাটম' ও 'মলিকিউল' */
+.atom{
+  position:absolute;
+  width:18px;height:18px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, #fff8, var(--accent));
+  box-shadow:0 6px 18px rgba(34,100,180,0.12), inset 0 2px 6px rgba(255,255,255,0.12);
+  transform-origin:center;
+  animation:float 6s ease-in-out infinite;
+  opacity:0.95;
+}
+.atom.small{ width:10px;height:10px; }
+@keyframes float{
+  0%{ transform: translateY(0) rotate(0deg); }
+  50%{ transform: translateY(-18px) rotate(180deg); }
+  100%{ transform: translateY(0) rotate(360deg); }
+}
 
-    /* মোবাইল: এক কলাম */
-    @media (max-width:900px){
-      .wrapper{grid-template-columns:1fr; padding:16px;}
-      .right{order:2;}
-    }
+/* orbiting electrons (rings) */
+.orbit{
+  position:absolute;
+  border-radius:50%;
+  border:1px dashed rgba(62,160,255,0.18);
+  animation:spin 9s linear infinite;
+}
+@keyframes spin{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
-    h1{
-      margin:0 0 6px 0;
-      font-size:20px;
-      letter-spacing:0.2px;
-    }
-    p.lead{margin:0 0 12px 0;color:var(--muted);font-size:14px;}
+/* small molecule group floating */
+.molecule{
+  position:absolute;
+  display:flex;
+  gap:6px;
+  align-items:center;
+  animation:molFloat 9s ease-in-out infinite;
+}
+@keyframes molFloat{
+  0%{ transform: translateY(0) scale(1); opacity:0.95 }
+  50%{ transform: translateY(-22px) scale(1.03); opacity:1 }
+  100%{ transform: translateY(0) scale(1); opacity:0.95 }
+}
 
-    /* ===========================
-       লক ও পাসওয়ার্ড সেকশন
-       =========================== */
-    .lock-card{
-      background:linear-gradient(180deg,rgba(234,249,255,0.9),#fff);
-      border-radius:12px;
-      padding:14px;
-      box-shadow:0 4px 12px rgba(46,130,214,0.06);
-      display:flex;
-      gap:12px;
-      align-items:center;
-    }
-    .lock-input{
-      flex:1;
-      display:flex;
-      gap:8px;
-      align-items:center;
-    }
-    input[type="password"]{
-      width:100%;
-      padding:10px 12px;
-      border-radius:10px;
-      border:1px solid #d7eafc;
-      background:transparent;
-      font-size:15px;
-      box-sizing:border-box;
-      outline:none;
-      transition:box-shadow .18s, border-color .18s;
-    }
-    input[type="password"]:focus{ box-shadow:0 6px 18px rgba(46,130,214,0.08); border-color:var(--accent-2); }
+/* subtle gradient waves */
+.bg-wave{
+  position:absolute;
+  width:140%;
+  height:140%;
+  left:-20%;
+  top:-10%;
+  background: radial-gradient(circle at 10% 10%, rgba(34,100,180,0.06), transparent 8%),
+              radial-gradient(circle at 90% 90%, rgba(62,160,255,0.04), transparent 10%);
+  transform: rotate(-6deg);
+  filter: blur(40px);
+  opacity:0.9;
+}
 
-    .btn{
-      background:var(--accent);
-      color:white;
-      border:none;
-      padding:10px 14px;
-      border-radius:10px;
-      cursor:pointer;
-      font-weight:600;
-      transition:transform .12s ease, box-shadow .12s;
-    }
-    .btn:hover{ transform:translateY(-2px); box-shadow:0 8px 26px rgba(46,130,214,0.12); }
-    .btn.secondary{ background:#fff; color:var(--accent-2); border:1px solid #dbeefe; }
+/* ========================
+   কন্টেইনার (গ্লাস কার্ড)
+   ======================== */
+.container{
+  position:relative;
+  z-index:10;
+  width:100%;
+  max-width:1000px;
+  display:grid;
+  grid-template-columns:1fr 380px;
+  gap:18px;
+  padding:20px;
+  border-radius:16px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(247,252,255,0.85));
+  box-shadow: 0 20px 60px rgba(15,56,100,0.08);
+}
+@media(max-width:920px){ .container{grid-template-columns:1fr;padding:14px} }
 
-    /* শেক অ্যানিমেশন ভুল পাসওয়ার্ডের জন্য */
-    @keyframes shake {
-      10%,90%{transform:translateX(-1px);}
-      20%,80%{transform:translateX(2px);}
-      30%,50%,70%{transform:translateX(-4px);}
-      40%,60%{transform:translateX(4px);}
-    }
-    .shake{ animation:shake .43s cubic-bezier(.36,.07,.19,.97); border-color:var(--danger) !important; }
+/* হেডার */
+.header h1{margin:0;font-size:20px}
+.header p{margin:6px 0 0;color:var(--muted);font-size:14px}
 
-    .warn{
-      color:var(--danger);
-      font-weight:600;
-      font-size:13px;
-      margin-top:8px;
-      display:none;
-    }
-    .warn.show{ display:block; }
+/* লক / পাসওয়ার্ড */
+.lock-card{
+  display:flex;gap:10px;align-items:center;padding:12px;border-radius:12px;
+  border:1px solid rgba(34,100,180,0.06);
+  background: linear-gradient(180deg, rgba(255,255,255,0.8), rgba(250,255,255,0.6));
+}
+input[type=password]{flex:1;padding:12px;border-radius:10px;border:1px solid rgba(34,100,180,0.12);outline:none;background:transparent;font-size:15px}
+input[type=password]:focus{box-shadow:0 10px 30px rgba(62,160,255,0.06);border-color:var(--accent-2);transform:translateY(-1px)}
 
-    /* লক কাউন্টার */
-    .locked{
-      color:var(--danger);
-      font-weight:700;
-      font-size:13px;
-      margin-left:6px;
-    }
+/* বাটন */
+.btn{ background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff; padding:10px 14px; border-radius:10px; border:none; cursor:pointer; font-weight:700; transition:transform .12s, box-shadow .12s }
+.btn:hover{ transform:translateY(-3px); box-shadow:0 14px 40px rgba(35,111,191,0.12) }
+.btn.ghost{ background:transparent; color:var(--accent-2); border:1px solid rgba(35,111,191,0.08) }
 
-    /* ===========================
-       অধ্যায় তালিকা কার্ড
-       =========================== */
-    .chapters{
-      margin-top:14px;
-      display:grid;
-      gap:10px;
-    }
-    .chapter{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:10px 12px;
-      border-radius:10px;
-      background:linear-gradient(180deg,#fff,#fbfdff);
-      border:1px solid #eef7ff;
-    }
-    .chapter .left{
-      display:flex;
-      gap:12px;
-      align-items:center;
-    }
-    .chapter h4{
-      margin:0;
-      font-size:15px;
-    }
-    .controls{
-      display:flex;
-      gap:8px;
-      align-items:center;
-    }
-    .toggle-btn{ background:transparent; border:1px solid #d7eafc; color:var(--accent-2); padding:8px 10px; border-radius:8px; cursor:pointer;}
-    .toggle-btn:hover{ background:var(--glass-2); }
+/* শেক অ্যানিমেশন ও সতর্কবার্তা */
+@keyframes shake{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-4px)}40%,60%{transform:translateX(4px)}}
+.shake{ animation:shake .45s cubic-bezier(.36,.07,.19,.97); border-color:var(--danger) !important }
+.warn{ color:var(--danger); font-weight:700; margin-top:8px; display:none }
 
-    /* চেকবক্স কাস্টম */
-    .checkbox{
-      display:flex;
-      gap:8px;
-      align-items:center;
-      color:var(--muted);
-      font-size:13px;
-    }
-    .checkbox input{ width:16px; height:16px; accent-color:var(--accent-2); }
+/* অধ্যায় তালিকা */
+.chapters{ margin-top:14px; display:grid; gap:10px }
+.chapter{ display:flex; justify-content:space-between; align-items:center; padding:12px; border-radius:12px; background: linear-gradient(180deg,#fff,#fbfdff); border:1px solid rgba(34,100,180,0.04); box-shadow:0 8px 20px rgba(34,100,180,0.03) }
+.chapter h4{ margin:0; font-size:15px }
+.controls{ display:flex; gap:8px; align-items:center }
+.toggle-btn{ background:transparent; border:1px solid rgba(34,100,180,0.06); color:var(--accent-2); padding:8px 10px; border-radius:9px; cursor:pointer }
+.toggle-btn:hover{ background:rgba(62,160,255,0.06) }
+.checkbox{ display:flex; gap:8px; align-items:center; color:var(--muted); font-size:13px }
 
-    /* প্রগ্রেস বার */
-    .progress-wrap{
-      margin-top:16px;
-      background:linear-gradient(180deg,#f8fcff,#fff);
-      border-radius:10px;
-      padding:12px;
-      border:1px solid #eef7ff;
-    }
-    .progress{
-      height:12px;
-      background:#e6f5ff;
-      border-radius:10px;
-      overflow:hidden;
-    }
-    .progress > i{
-      display:block;
-      height:100%;
-      width:0%;
-      background:linear-gradient(90deg,var(--accent),var(--accent-2));
-      border-radius:10px;
-      transition:width .4s ease;
-    }
-    .progress-text{ margin-top:8px; font-weight:700; font-size:13px; color:var(--accent-2); }
+/* প্রগ্রেস */
+.progress-wrap{ margin-top:16px; padding:12px; border-radius:12px; background:linear-gradient(180deg,#fff,#fbfdff); border:1px solid rgba(34,100,180,0.04) }
+.progress{ height:12px; background:#eaf6ff; border-radius:10px; overflow:hidden }
+.progress > i{ display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--accent),var(--accent-2)); transition:width .45s ease }
+.progress-text{ margin-top:8px; font-weight:800; color:var(--accent-2) }
 
-    /* ===========================
-       মোডাল স্টাইল
-       =========================== */
-    .modal-backdrop{
-      position:fixed;
-      inset:0;
-      background:rgba(4,20,40,0.4);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      opacity:0;
-      pointer-events:none;
-      transition:opacity .2s ease;
-    }
-    .modal-backdrop.show{ opacity:1; pointer-events:auto; }
-    .modal{
-      width:92%;
-      max-width:520px;
-      background:var(--card);
-      border-radius:14px;
-      padding:18px;
-      box-shadow:0 26px 60px rgba(2,32,63,0.28);
-      transform:translateY(12px);
-      opacity:0;
-      transition:all .26s ease;
-    }
-    .modal-backdrop.show .modal{ transform:none; opacity:1; }
-    .modal h3{ margin:0 0 8px 0; font-size:17px; }
-    .modal p{ margin:0 0 12px 0; color:var(--muted); font-size:14px; }
-    .modal .link{
-      display:block;
-      padding:10px 12px;
-      border-radius:10px;
-      border:1px dashed #d7eafc;
-      color:var(--accent-2);
-      text-decoration:none;
-      background:linear-gradient(180deg,#fff,#f7fbff);
-      margin-bottom:8px;
-    }
-    .modal .close{ background:transparent; border:1px solid #eef7ff; padding:8px 10px; border-radius:8px; cursor:pointer; }
+/* মোডাল */
+.modal-backdrop{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(4,20,40,0.45); z-index:60 }
+.modal-backdrop.show{ display:flex }
+.modal{ width:92%; max-width:520px; background:linear-gradient(180deg,#fff,#f8fcff); padding:18px; border-radius:12px; box-shadow:0 26px 70px rgba(3,32,63,0.25) }
+.modal .link{ display:block; padding:10px; border-radius:10px; border:1px dashed rgba(34,100,180,0.08); color:var(--accent-2); text-decoration:none; margin-bottom:8px; background:linear-gradient(180deg,#fff,#f7fbff); word-break:break-all }
 
-    /* ===========================
-       স্ট্যাণ্ডবাই সেকশন (ডান সাইড)
-       =========================== */
-    .right{
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      align-items:stretch;
-    }
-    .card{
-      background:var(--card);
-      border-radius:12px;
-      padding:12px;
-      border:1px solid #eef7ff;
-      box-shadow:0 6px 18px rgba(46,130,214,0.04);
-    }
+/* ডান সাইড কার্ড ও টাইমার */
+.right .card{ background:linear-gradient(180deg,#fff,#fbfdff); padding:14px; border-radius:12px; border:1px solid rgba(34,100,180,0.04); box-shadow:0 8px 30px rgba(34,100,180,0.04); margin-bottom:12px }
+.time-display{ font-size:30px; font-weight:900; color:var(--accent-2); padding:8px 16px; border-radius:12px; display:inline-block; background:linear-gradient(180deg,rgba(62,160,255,0.06),rgba(35,111,191,0.03)) }
+.glow{ display:flex; align-items:center; gap:10px; padding:8px; border-radius:10px; background:linear-gradient(90deg, rgba(62,160,255,0.08), rgba(35,111,191,0.03)); box-shadow:0 10px 40px rgba(62,160,255,0.05) }
 
-    /* পোমোডোরো টাইমার */
-    .timer{
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      align-items:center;
-      text-align:center;
-    }
-    .time-display{
-      font-size:34px;
-      font-weight:800;
-      color:var(--accent-2);
-      background:var(--soft-blue);
-      padding:8px 20px;
-      border-radius:12px;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,0.6);
-    }
-    .t-controls{ display:flex; gap:8px; }
-    .small{ padding:8px 10px; font-size:13px; border-radius:8px; }
-
-    /* অডিও প্লেয়ার */
-    .audio-area{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      justify-content:space-between;
-    }
-    .audio-area .file-name{ font-size:13px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px;}
-    .glow{
-      height:46px;
-      border-radius:10px;
-      background:linear-gradient(90deg, rgba(74,163,255,0.12), rgba(46,130,214,0.06));
-      display:flex;
-      align-items:center;
-      padding:8px;
-      gap:8px;
-      box-shadow:0 6px 24px rgba(74,163,255,0.08);
-    }
-
-    /* ফুটার */
-    footer{
-      margin-top:18px;
-      grid-column:1/-1;
-      text-align:center;
-      color:var(--muted);
-      font-size:13px;
-    }
-
-  </style>
+/* ফুটার */
+footer{ grid-column:1/-1; text-align:center; color:var(--muted); margin-top:12px; font-size:13px }
+</style>
 </head>
 <body>
-  <div class="wrapper" role="application" aria-label="অধ্যয়ন সহায়ক ওয়েবঅ্যাপ">
 
-    <!-- বাম অংশ: হেডার ও কন্টেন্ট -->
-    <div>
-      <h1>কাজিম ভাইয়ের অধ্যয়ন সহায়ক</h1>
-      <p class="lead">নিচে পাসওয়ার্ড দিন এবং অধ্যায় তালিকা আনলক করুন</p>
+<!-- ব্যাকগ্রাউন্ড অ্যানিমেশন এলিমেন্টস -->
+<div class="bg-canvas" aria-hidden="true">
+  <div class="bg-wave"></div>
 
-      <!-- পাসওয়ার্ড সেকশন -->
-      <div class="lock-card" id="lockCard">
-        <div class="lock-input">
-          <input id="pw" type="password" placeholder="পাসওয়ার্ড লিখুন" aria-label="পাসওয়ার্ড ইনপুট" />
-          <button class="btn" id="unlockBtn">আনলক করো</button>
-        </div>
-      </div>
-      <div class="warn" id="warnMsg">ভুল পাসওয়ার্ড। আবার চেষ্টা করো।</div>
-      <div style="margin-top:8px;display:flex;align-items:center;gap:8px;">
-        <div class="small btn secondary" id="resetAttempts">চেষ্টা রিসেট করো</div>
-        <div style="flex:1"></div>
-        <div class="locked" id="lockInfo" style="display:none"></div>
-      </div>
-
-      <!-- অধ্যায় তালিকা (ডিফল্ট লুকানো) -->
-      <div id="chaptersArea" style="display:none;">
-        <div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between">
-          <h2 style="margin:0;font-size:16px">অধ্যায় তালিকা</h2>
-          <div style="color:var(--muted);font-size:13px">মোট 12 অধ্যায়</div>
-        </div>
-
-        <div class="chapters" id="chaptersList">
-          <!-- অধ্যায়গুলো জাভাস্ক্রিপ্ট দিয়ে জেনারেট হবে -->
-        </div>
-
-        <!-- প্রগ্রেস -->
-        <div class="progress-wrap" aria-hidden="false">
-          <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-            <i id="progressBar"></i>
-          </div>
-          <div class="progress-text" id="progressText">প্রগতি: 0%</div>
-        </div>
-      </div>
-
-      <footer>© 2025 কাজিম ভাইয়ার অধ্যয়ন সহায়ক ওয়েবঅ্যাপ</footer>
-    </div>
-
-    <!-- ডান অংশ: পোমোডোরো, অডিও -->
-    <div class="right">
-      <div class="card timer">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <strong>পোমোডোরো টাইমার</strong>
-          <small style="color:var(--muted);font-size:13px">২৫মিন কাজ / ৫মিন বিরতি</small>
-        </div>
-
-        <div class="time-display" id="timeDisplay">25:00</div>
-        <div class="t-controls">
-          <button class="btn small" id="startTimer">স্টার্ট</button>
-          <button class="btn small" id="pauseTimer">পজ</button>
-          <button class="btn small" id="resetTimer">রিসেট</button>
-        </div>
-        <div style="color:var(--muted);font-size:13px">স্টেট: <span id="timerState">প্রস্তুত</span></div>
-      </div>
-
-      <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-          <strong>লোকাল অডিও প্লেয়ার</strong>
-          <small style="color:var(--muted);font-size:13px">নিজের ফাইল সিলেক্ট করো</small>
-        </div>
-
-        <div style="height:10px"></div>
-        <div class="glow">
-          <div style="flex:1">
-            <div class="file-name" id="fileName">কোনো ফাইল নির্বাচন করা হয়নি</div>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <label class="btn" for="audioFile" style="padding:8px 10px;cursor:pointer">লোকাল অডিও ফাইল প্লে করো</label>
-            <input type="file" id="audioFile" accept="audio/*" style="display:none" />
-            <button class="btn small" id="playPauseAudio" disabled>প্লে</button>
-          </div>
-        </div>
-        <audio id="player"></audio>
-      </div>
-
-      <div class="card" style="text-align:center;font-size:13px;color:var(--muted);">
-        টিপ: নোটিফিকেশন পারমিশন দিলে টাইমার শেষ হলে নোটিফিকেশন পাবে
-      </div>
-    </div>
-
-    <!-- মোডাল (কমন) -->
-    <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
-      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-        <h3 id="modalTitle">অধ্যায়ের পিডিএফ লিংক</h3>
-        <p id="modalDesc">নীচের লিংকটি ক্লিক করে পিডিএফ খুলুন</p>
-        <div id="modalLinks"></div>
-        <div style="display:flex;justify-content:flex-end;margin-top:8px;">
-          <button class="close" id="closeModal">বন্ধ করো</button>
-        </div>
-      </div>
-    </div>
-
+  <!-- একাধিক ছোট এটম পজিশনিং (CSS ইনলাইন style দিয়ে র‍্যান্ডম প্লেসমেন্ট) -->
+  <div class="atom" style="left:6%;top:18%; animation-duration:7s;"></div>
+  <div class="atom small" style="left:20%;top:8%; animation-duration:9s;"></div>
+  <div class="atom" style="left:12%;top:68%; animation-duration:8s;"></div>
+  <div class="molecule" style="left:72%;top:22%; animation-duration:10s;">
+    <div class="atom small" style="background:linear-gradient(#fff,#8fd1ff)"></div>
+    <div class="atom" style="background:linear-gradient(#fff,#cfe9ff)"></div>
+    <div class="atom small" style="background:linear-gradient(#fff,#bfe0ff)"></div>
   </div>
 
-  <script>
-    /* ===========================
-       সেটআপ: অধ্যায় ও পিডিএফ লিংক
-       =========================== */
-    // অধ্যায় নাম ও লিংক অ্যারে
-    const chapters = [
-      { id:1, title:"অধ্যায় ১: পদার্থের গঠন", link:"https://drive.google.com/file/d/1xch1/view?usp=drive_link" },
-      { id:2, title:"অধ্যায় ২: রাসায়নিক বন্ধন", link:"https://drive.google.com/file/d/1ychem/view?usp=drive_link" },
-      { id:3, title:"অধ্যায় ৩: রাসায়নিক বিক্রিয়া", link:"https://drive.google.com/file/d/1zchem/view?usp=drive_link" },
-      { id:4, title:"অধ্যায় ৪: গ্যাসের আচরণ", link:"https://drive.google.com/file/d/1gchem/view?usp=drive_link" },
-      { id:5, title:"অধ্যায় ৫: দ্রবণ", link:"https://drive.google.com/file/d/1hchem/view?usp=drive_link" },
-      { id:6, title:"অধ্যায় ৬: তাপ রসায়ন", link:"https://drive.google.com/file/d/1ichem/view?usp=drive_link" },
-      { id:7, title:"অধ্যায় ৭: বিদ্যুৎ রসায়ন", link:"https://drive.google.com/file/d/1jchem/view?usp=drive_link" },
-      { id:8, title:"অধ্যায় ৮: জৈব রসায়নের মৌলিক ধারণা", link:"https://drive.google.com/file/d/1kchem/view?usp=drive_link" },
-      { id:9, title:"অধ্যায় ৯: কার্বন যৌগ", link:"https://drive.google.com/file/d/1lchem/view?usp=drive_link" },
-      { id:10, title:"অধ্যায় ১০: ধাতু ও অধাতু", link:"https://drive.google.com/file/d/1mchem/view?usp=drive_link" },
-      { id:11, title:"অধ্যায় ১১: পরিবেশ রসায়ন", link:"https://drive.google.com/file/d/1nchem/view?usp=drive_link" },
-      { id:12, title:"অধ্যায় ১২: শিল্প রসায়ন", link:"https://drive.google.com/file/d/1ochem/view?usp=drive_link" },
-    ];
+  <div class="molecule" style="left:82%;top:70%; animation-duration:12s;">
+    <div class="atom small" style="background:linear-gradient(#fff,#d9f0ff)"></div>
+    <div class="orbit" style="width:48px;height:48px;left:-6px;top:-6px;animation-duration:12s;border-color:rgba(62,160,255,0.14)"></div>
+  </div>
 
-    // পাসওয়ার্ড কনফিগ
-    const CORRECT_PW = "chem2025";
-    const MAX_ATTEMPTS = 5;
-    const LOCK_SECONDS = 30;
+  <div class="atom" style="left:50%;top:12%; animation-duration:11s; background:linear-gradient(#fff,#d0eeff)"></div>
+  <div class="atom small" style="left:62%;top:46%; animation-duration:6.5s; background:linear-gradient(#fff,#e2f6ff)"></div>
+</div>
 
-    // DOM এলেমেন্টস
-    const pwInput = document.getElementById('pw');
-    const unlockBtn = document.getElementById('unlockBtn');
-    const warnMsg = document.getElementById('warnMsg');
-    const chaptersArea = document.getElementById('chaptersArea');
-    const chaptersList = document.getElementById('chaptersList');
-    const modalBackdrop = document.getElementById('modalBackdrop');
-    const modalLinks = document.getElementById('modalLinks');
-    const closeModal = document.getElementById('closeModal');
-    const progressBar = document.getElementById('progressBar');
-    const progressText = document.getElementById('progressText');
-    const lockInfo = document.getElementById('lockInfo');
-    const resetAttemptsBtn = document.getElementById('resetAttempts');
+<!-- মুল কন্টেন্ট -->
+<div class="container" role="application" aria-label="অধ্যয়ন সহায়ক">
 
-    /* ===========================
-       স্থানীয় ডেটা সেভিং লজিক
-       - localStorage এ progress এবং attempts সেভ
-       =========================== */
-    const STORAGE_KEYS = {
-      PROGRESS: 'kb_progress_v1',       // অধ্যায় শেষে চেকবক্সগুলোর স্টেট
-      UNLOCKED: 'kb_unlocked_v1',       // যে অবস্থায় আনলক করা হয়েছে
-      ATTEMPTS: 'kb_attempts_v1',       // ভুল চেষ্টা গোনা
-      LOCK_UNTIL: 'kb_lock_until_v1'    // যদি সম্পূর্ণ লক করা হয়, তার timestamp
-    };
+  <!-- বাম অংশ -->
+  <div>
+    <div class="header">
+      <h1>কাজিম ভাইয়ের অধ্যয়ন সহায়ক</h1>
+      <p>পাসওয়ার্ড দিয়ে অধ্যায় তালিকা আনলক করুন — ব্যাকগ্রাউন্ডে chemistry animation</p>
+    </div>
 
-    function saveProgress(state){
-      localStorage.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify(state));
-    }
-    function loadProgress(){
-      try{
-        const raw = localStorage.getItem(STORAGE_KEYS.PROGRESS);
-        return raw ? JSON.parse(raw) : {};
-      }catch(e){ return {}; }
-    }
-    function saveUnlocked(val){
-      localStorage.setItem(STORAGE_KEYS.UNLOCKED, val ? '1':'0');
-    }
-    function isUnlocked(){
-      return localStorage.getItem(STORAGE_KEYS.UNLOCKED) === '1';
-    }
-    function saveAttempts(n){
-      localStorage.setItem(STORAGE_KEYS.ATTEMPTS, String(n));
-    }
-    function loadAttempts(){
-      const v = localStorage.getItem(STORAGE_KEYS.ATTEMPTS);
-      return v ? parseInt(v,10) : 0;
-    }
-    function saveLockUntil(ts){
-      if(ts) localStorage.setItem(STORAGE_KEYS.LOCK_UNTIL, String(ts));
-      else localStorage.removeItem(STORAGE_KEYS.LOCK_UNTIL');
-    }
-    function loadLockUntil(){
-      const v = localStorage.getItem(STORAGE_KEYS.LOCK_UNTIL);
-      return v ? parseInt(v,10) : null;
-    }
+    <!-- পাসওয়ার্ড ইনপুট -->
+    <div class="lock-card" id="lockCard">
+      <input id="pw" type="password" placeholder="পাসওয়ার্ড লিখুন (উদাহরণ: chem2025)" aria-label="পাসওয়ার্ড ইনপুট">
+      <button class="btn" id="unlockBtn">আনলক করো</button>
+    </div>
+    <div class="warn" id="warnMsg">ভুল পাসওয়ার্ড</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
+      <button class="btn ghost" id="resetAttempts">চেষ্টা রিসেট করো</button>
+      <div style="flex:1"></div>
+      <div id="lockInfo" style="color:var(--danger);font-weight:800;display:none"></div>
+    </div>
 
-    // সংরক্ষণকৃত প্রগ্রেস থেকে চেকবক্স স্টেট রেন্ডার করবে
-    function renderChapters(){
-      chaptersList.innerHTML = '';
-      const saved = loadProgress();
-      chapters.forEach(ch=>{
-        const div = document.createElement('div');
-        div.className = 'chapter';
-        div.innerHTML = `
-          <div class="left">
-            <div>
-              <h4>${ch.title}</h4>
-              <div style="font-size:12px;color:var(--muted)">${ch.link}</div>
-            </div>
-          </div>
-          <div class="controls">
-            <label class="checkbox">
-              <input type="checkbox" data-id="${ch.id}" ${saved[ch.id] ? 'checked' : ''} />
-              <span>পড়া শেষ</span>
-            </label>
-            <button class="toggle-btn" data-id="${ch.id}">খুলো / বন্ধ করো</button>
-          </div>
-        `;
-        chaptersList.appendChild(div);
-      });
+    <!-- অধ্যায় তালিকা (ডিফল্ট লুকানো) -->
+    <div id="chaptersArea" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
+        <strong style="font-size:16px">অধ্যায় তালিকা</strong>
+        <span style="color:var(--muted)">মোট 12</span>
+      </div>
 
-      // ইভেন্ট লিসেনার অ্যাসাইন
-      chaptersList.querySelectorAll('.toggle-btn').forEach(btn=>{
-        btn.addEventListener('click', (e)=>{
-          const id = parseInt(btn.getAttribute('data-id'),10);
-          openModalFor(id);
-        });
-      });
-      chaptersList.querySelectorAll('.checkbox input').forEach(cb=>{
-        cb.addEventListener('change', (e)=>{
-          const id = cb.getAttribute('data-id');
-          const state = loadProgress();
-          state[id] = cb.checked ? true : false;
-          saveProgress(state);
-          updateProgressUI();
-        });
-      });
+      <div class="chapters" id="chaptersList"></div>
 
-      updateProgressUI();
-    }
+      <div class="progress-wrap">
+        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <i id="progressBar"></i>
+        </div>
+        <div class="progress-text" id="progressText">প্রগতি: 0%</div>
+      </div>
+    </div>
 
-    // প্রগ্রেস আপডেট
-    function updateProgressUI(){
+    <footer>© 2025 কাজিম ভাইয়ার অধ্যয়ন সহায়ক ওয়েবঅ্যাপ</footer>
+  </div>
+
+  <!-- ডান অংশ -->
+  <div class="right">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong>পোমোডোরো টাইমার</strong>
+        <small style="color:var(--muted)">২৫মিন কাজ / ৫মিন বিরতি</small>
+      </div>
+      <div style="height:12px"></div>
+      <div class="time-display" id="timeDisplay">25:00</div>
+      <div style="height:10px"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" id="startTimer">স্টার্ট</button>
+        <button class="btn ghost" id="pauseTimer">পজ</button>
+        <button class="btn ghost" id="resetTimer">রিসেট</button>
+      </div>
+      <div style="margin-top:8px;color:var(--muted)">স্টেট: <span id="timerState">প্রস্তুত</span></div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong>লোকাল অডিও প্লেয়ার</strong><small style="color:var(--muted)">নিজের ফাইল সিলেক্ট করো</small>
+      </div>
+      <div style="height:10px"></div>
+      <div class="glow">
+        <div style="flex:1"><div id="fileName" style="color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">কোনো ফাইল নির্বাচন করা হয়নি</div></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <label class="btn" for="audioFile" style="cursor:pointer;padding:8px 10px">লোকাল অডিও ফাইল প্লে করো</label>
+          <input id="audioFile" type="file" accept="audio/*" style="display:none">
+          <button class="btn ghost" id="playPauseAudio" disabled>প্লে</button>
+        </div>
+      </div>
+      <audio id="player"></audio>
+    </div>
+
+    <div style="font-size:13px;color:var(--muted);">নোট: নোটিফিকেশন পারমিশন দিলে টাইমার শেষ হলে নোটিফিকেশন দেখাবে</div>
+  </div>
+</div>
+
+<!-- মোডাল -->
+<div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h3 id="modalTitle">পিডিএফ লিংক</h3>
+    <p style="color:var(--muted);margin-top:6px">নীচের লিংকটি ক্লিক করে পিডিএফ খুলুন (যদি লিংক যোগ করা থাকে)</p>
+    <div id="modalLinks" style="margin-top:8px"></div>
+    <div style="text-align:right;margin-top:10px"><button class="btn ghost" id="closeModal">বন্ধ করো</button></div>
+  </div>
+</div>
+
+<script>
+/* ===========================
+   বাংলা কমেন্ট: অধ্যায় ডাটা
+   অধ্যায় ১ এর জন্য লিংক দেখাবো না (user request)
+   বাকি অধ্যায়ের জন্য লিংক থাকবে
+   =========================== */
+const chapters = [
+  {id:1,title:"অধ্যায় ১: পদার্থের গঠন", link:null}, // link নেই
+  {id:2,title:"অধ্যায় ২: রাসায়নিক বন্ধন", link:"https://drive.google.com/file/d/1ychem/view?usp=drive_link"},
+  {id:3,title:"অধ্যায় ৩: রাসায়নিক বিক্রিয়া", link:"https://drive.google.com/file/d/1zchem/view?usp=drive_link"},
+  {id:4,title:"অধ্যায় ৪: গ্যাসের আচরণ", link:"https://drive.google.com/file/d/1gchem/view?usp=drive_link"},
+  {id:5,title:"অধ্যায় ৫: দ্রবণ", link:"https://drive.google.com/file/d/1hchem/view?usp=drive_link"},
+  {id:6,title:"অধ্যায় ৬: তাপ রসায়ন", link:"https://drive.google.com/file/d/1ichem/view?usp=drive_link"},
+  {id:7,title:"অধ্যায় ৭: বিদ্যুৎ রসায়ন", link:"https://drive.google.com/file/d/1jchem/view?usp=drive_link"},
+  {id:8,title:"অধ্যায় ৮: জৈব রসায়নের মৌলিক ধারণা", link:"https://drive.google.com/file/d/1kchem/view?usp=drive_link"},
+  {id:9,title:"অধ্যায় ৯: কার্বন যৌগ", link:"https://drive.google.com/file/d/1lchem/view?usp=drive_link"},
+  {id:10,title:"অধ্যায় ১০: ধাতু ও অধাতু", link:"https://drive.google.com/file/d/1mchem/view?usp=drive_link"},
+  {id:11,title:"অধ্যায় ১১: পরিবেশ রসায়ন", link:"https://drive.google.com/file/d/1nchem/view?usp=drive_link"},
+  {id:12,title:"অধ্যায় ১২: শিল্প রসায়ন", link:"https://drive.google.com/file/d/1ochem/view?usp=drive_link"}
+];
+
+/* পাসওয়ার্ড ও লোকালস্টোরেজ কি */
+const CORRECT_PW = "chem2025";
+const MAX_ATTEMPTS = 5;
+const LOCK_SECONDS = 30;
+const KEYS = { PROG:'kb_prog_v3', UNLOCK:'kb_un_v3', ATT:'kb_att_v3', LOCK:'kb_lock_v3' };
+
+/* ===========================
+   localStorage সহায়িকা
+   =========================== */
+function saveProgress(obj){ localStorage.setItem(KEYS.PROG, JSON.stringify(obj)); }
+function loadProgress(){ try { return JSON.parse(localStorage.getItem(KEYS.PROG)) || {}; } catch(e){ return {}; } }
+function saveUnlocked(v){ localStorage.setItem(KEYS.UNLOCK, v? '1' : '0'); }
+function isUnlocked(){ return localStorage.getItem(KEYS.UNLOCK) === '1'; }
+function saveAttempts(n){ localStorage.setItem(KEYS.ATT, String(n)); }
+function loadAttempts(){ return parseInt(localStorage.getItem(KEYS.ATT)) || 0; }
+function saveLockUntil(ts){ if(ts) localStorage.setItem(KEYS.LOCK, String(ts)); else localStorage.removeItem(KEYS.LOCK); }
+function loadLockUntil(){ const v = localStorage.getItem(KEYS.LOCK); return v ? parseInt(v,10) : null; }
+
+/* DOM রেফ */
+const pwInput = document.getElementById('pw');
+const unlockBtn = document.getElementById('unlockBtn');
+const warnMsg = document.getElementById('warnMsg');
+const chaptersArea = document.getElementById('chaptersArea');
+const chaptersList = document.getElementById('chaptersList');
+const progressBar = document.getElementById('progressBar');
+const progressText = document.getElementById('progressText');
+const modalBackdrop = document.getElementById('modalBackdrop');
+const modalLinks = document.getElementById('modalLinks');
+const closeModal = document.getElementById('closeModal');
+const lockInfo = document.getElementById('lockInfo');
+const resetAttemptsBtn = document.getElementById('resetAttempts');
+
+let attempts = loadAttempts() || 0;
+let lockInterval = null;
+
+/* ===========================
+   চ্যাপটার রেন্ডারিং (লিস্টে লিংক দেখাবো না)
+   =========================== */
+function renderChapters(){
+  chaptersList.innerHTML = '';
+  const saved = loadProgress();
+  chapters.forEach(ch=>{
+    const div = document.createElement('div');
+    div.className = 'chapter';
+    // নোট: Title এর নিচে link দেখানো হবে না (user চাইলে modal-এ দেখা যাবে, কিন্তু অধ্যায় ১-এর ক্ষেত্রে modal-এও দেখাবো না)
+    div.innerHTML = `
+      <div>
+        <h4>${ch.title}</h4>
+      </div>
+      <div class="controls">
+        <label class="checkbox">
+          <input type="checkbox" data-id="${ch.id}" ${saved[ch.id] ? 'checked' : ''}>
+          <span style="font-size:13px;color:var(--muted)">পড়া শেষ</span>
+        </label>
+        <button class="toggle-btn" data-id="${ch.id}">খুলো / বন্ধ করো</button>
+      </div>
+    `;
+    chaptersList.appendChild(div);
+  });
+
+  // ইভেন্ট অ্যাসাইন
+  chaptersList.querySelectorAll('.toggle-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> openModalFor(parseInt(btn.dataset.id,10)));
+  });
+  chaptersList.querySelectorAll('.checkbox input').forEach(cb=>{
+    cb.addEventListener('change', ()=>{
+      const id = cb.getAttribute('data-id');
       const state = loadProgress();
-      const total = chapters.length;
-      const done = Object.keys(state).filter(k=>state[k]).length;
-      const pct = Math.round((done/total)*100);
-      progressBar.style.width = pct + '%';
-      progressText.textContent = `প্রগতি: ${pct}%`;
-      // ARIA
-      document.querySelector('.progress').setAttribute('aria-valuenow', String(pct));
-    }
-
-    /* ===========================
-       মোডাল লজিক
-       =========================== */
-    function openModalFor(id){
-      const item = chapters.find(c=>c.id===id);
-      if(!item) return;
-      modalLinks.innerHTML = '';
-      const a = document.createElement('a');
-      a.href = item.link;
-      a.target = '_blank';
-      a.className = 'link';
-      a.textContent = item.title + ' - পিডিএফ খুলুন';
-      modalLinks.appendChild(a);
-
-      modalBackdrop.classList.add('show');
-      modalBackdrop.setAttribute('aria-hidden','false');
-    }
-    closeModal.addEventListener('click', ()=> {
-      modalBackdrop.classList.remove('show');
-      modalBackdrop.setAttribute('aria-hidden','true');
+      state[id] = cb.checked;
+      saveProgress(state);
+      updateProgressUI();
     });
-    modalBackdrop.addEventListener('click', (e)=>{
-      if(e.target === modalBackdrop){
-        modalBackdrop.classList.remove('show');
-        modalBackdrop.setAttribute('aria-hidden','true');
-      }
-    });
+  });
 
-    /* ===========================
-       পাসওয়ার্ড লজিক ও লক আউট
-       =========================== */
-    let attempts = loadAttempts() || 0;
-    let lockUntil = loadLockUntil() || null;
+  updateProgressUI();
+}
 
-    function showWarn(msg){
-      warnMsg.textContent = msg;
-      warnMsg.classList.add('show');
-    }
-    function hideWarn(){
-      warnMsg.classList.remove('show');
-    }
-    function setLockUI(locked, secondsLeft){
-      if(locked){
-        lockInfo.style.display = 'inline-block';
-        lockInfo.textContent = `লক করা আছে। ${secondsLeft} সেকেন্ড পর চেষ্টা করো`;
-      }else{
-        lockInfo.style.display = 'none';
-      }
-    }
+/* প্রগ্রেস আপডেট */
+function updateProgressUI(){
+  const state = loadProgress();
+  const total = chapters.length;
+  const done = Object.keys(state).filter(k=>state[k]).length;
+  const pct = Math.round((done/total)*100);
+  progressBar.style.width = pct + '%';
+  progressText.textContent = `প্রগতি: ${pct}%`;
+}
 
-    function checkLockStatus(){
-      // যদি লক টাইম আছে এবং এখনও সময় বাকি
-      const now = Date.now();
-      const until = loadLockUntil();
-      if(until && until > now){
-        const left = Math.ceil((until - now)/1000);
-        setLockUI(true,left);
-        // টাইমার আপডেট
-        const t = setInterval(()=>{
-          const now2 = Date.now();
-          if(now2 >= until){
-            clearInterval(t);
-            saveLockUntil(null);
-            saveAttempts(0);
-            attempts = 0;
-            setLockUI(false,0);
-          }else{
-            const left2 = Math.ceil((until - now2)/1000);
-            setLockUI(true,left2);
-          }
-        }, 500);
-        return true;
-      }else{
-        // কোনো লক নেই
-        return false;
-      }
-    }
+/* ===========================
+   মোডাল লজিক
+   - অধ্যায় ১ এর ক্ষেত্রে explicit দেখা যাবে না / বার্তা দেখাবে
+   =========================== */
+function openModalFor(id){
+  const item = chapters.find(c=>c.id===id);
+  modalLinks.innerHTML = '';
+  if(!item) return;
+  if(item.link){
+    const a = document.createElement('a');
+    a.href = item.link;
+    a.target = '_blank';
+    a.className = 'link';
+    a.textContent = `${item.title} - পিডিএফ খুলুন`;
+    modalLinks.appendChild(a);
+  } else {
+    // অধ্যায় ১: link নেই, user অনুরোধ মত "link add kora lagbe nah"
+    const p = document.createElement('div');
+    p.style.color = 'var(--muted)';
+    p.style.padding = '10px';
+    p.style.borderRadius = '8px';
+    p.style.background = 'linear-gradient(180deg,#fff,#fbfdff)';
+    p.textContent = 'এই অধ্যায়ের জন্য কোনো পিডিএফ লিংক যোগ করা হয়নি';
+    modalLinks.appendChild(p);
+  }
+  modalBackdrop.classList.add('show');
+  modalBackdrop.setAttribute('aria-hidden','false');
+}
+closeModal.addEventListener('click', ()=>{ modalBackdrop.classList.remove('show'); modalBackdrop.setAttribute('aria-hidden','true'); });
+modalBackdrop.addEventListener('click', e => { if(e.target === modalBackdrop){ modalBackdrop.classList.remove('show'); modalBackdrop.setAttribute('aria-hidden','true'); } });
 
-    // আনলক রুটিন
-    function unlockUI(){
-      // UI পরিবর্তন
-      document.getElementById('lockCard').style.opacity = '0.98';
-      chaptersArea.style.display = 'block';
-      saveUnlocked(true);
-      renderChapters();
-    }
-
-    // লোড হওয়া অবস্থায় যদি আগেই আনলক করা থাকে
-    if(isUnlocked()){
-      unlockUI();
-    }
-
-    checkLockStatus();
-
-    unlockBtn.addEventListener('click', attemptUnlock);
-    pwInput.addEventListener('keypress', (e)=>{ if(e.key === 'Enter') attemptUnlock(); });
-    resetAttemptsBtn.addEventListener('click', ()=>{
-      attempts = 0;
-      saveAttempts(attempts);
-      showWarn('চেষ্টা রিসেট করা হয়েছে');
-      setTimeout(hideWarn,1500);
-      setLockUI(false,0);
-    });
-
-    function attemptUnlock(){
-      // যদি লক চলছে, ব্লক করো
-      const now = Date.now();
-      const until = loadLockUntil();
-      if(until && until > now){
-        const left = Math.ceil((until-now)/1000);
-        showWarn(`অস্থায়ীভাবে লক করা আছে। ${left} সেকেন্ড পর চালাও`);
-        return;
-      }
-
-      const val = pwInput.value.trim();
-      if(!val){
-        showWarn('পাসওয়ার্ড লিখে রিপিট করো');
-        pwInput.classList.add('shake');
-        setTimeout(()=>pwInput.classList.remove('shake'),430);
-        return;
-      }
-
-      if(val === CORRECT_PW){
-        hideWarn();
+/* ===========================
+   পাসওয়ার্ড লজিক: শেক, সতর্কবার্তা, ৫বার ভুলে লক
+   =========================== */
+function showWarn(msg){
+  warnMsg.textContent = msg;
+  warnMsg.style.display = 'block';
+}
+function hideWarn(){ warnMsg.style.display = 'none'; }
+function setLockUI(on, secondsLeft){
+  if(on){
+    lockInfo.style.display = 'inline-block';
+    lockInfo.textContent = `লক করা আছে। ${secondsLeft} সেকেন্ড পরে চেষ্টা করো`;
+  } else {
+    lockInfo.style.display = 'none';
+  }
+}
+function checkLockStatus(){
+  const now = Date.now();
+  const until = loadLockUntil();
+  if(until && until > now){
+    const left = Math.ceil((until - now)/1000);
+    setLockUI(true, left);
+    if(lockInterval) clearInterval(lockInterval);
+    lockInterval = setInterval(()=>{
+      const n = Date.now();
+      if(n >= until){
+        clearInterval(lockInterval);
+        lockInterval = null;
+        saveLockUntil(null);
+        saveAttempts(0);
         attempts = 0;
-        saveAttempts(attempts);
-        saveUnlocked(true);
-        unlockUI();
-        pwInput.value = '';
-      }else{
-        // ভুল পাসওয়ার্ড
-        attempts+=1;
-        saveAttempts(attempts);
-        // শেক এফেক্ট
-        pwInput.classList.add('shake');
-        setTimeout(()=>pwInput.classList.remove('shake'),430);
-        showWarn(`ভুল পাসওয়ার্ড। চেষ্টা: ${attempts} / ${MAX_ATTEMPTS}`);
-        if(attempts >= MAX_ATTEMPTS){
-          const untilTs = Date.now() + LOCK_SECONDS * 1000;
-          localStorage.setItem(STORAGE_KEYS.LOCK_UNTIL, String(untilTs));
-          // লক শুরু
-          checkLockStatus();
-          showWarn(`অনেকবার ভুল হয়েছে। ${LOCK_SECONDS} সেকেন্ডের জন্য লক করা হল`);
-        }
+        setLockUI(false,0);
+        hideWarn();
+      } else {
+        setLockUI(true, Math.ceil((until - n)/1000));
       }
+    }, 500);
+    return true;
+  } else {
+    setLockUI(false,0);
+    return false;
+  }
+}
+
+function unlockUI(){
+  document.getElementById('lockCard').style.opacity = '0.98';
+  chaptersArea.style.display = 'block';
+  saveUnlocked(true);
+  renderChapters();
+}
+
+if(isUnlocked()){
+  unlockUI();
+}
+checkLockStatus();
+
+unlockBtn.addEventListener('click', attemptUnlock);
+pwInput.addEventListener('keypress', (e)=>{ if(e.key === 'Enter') attemptUnlock(); });
+resetAttemptsBtn.addEventListener('click', ()=>{ attempts = 0; saveAttempts(0); showWarn('চেষ্টা রিসেট করা হয়েছে'); setTimeout(hideWarn,1400); setLockUI(false,0); });
+
+function attemptUnlock(){
+  const now = Date.now();
+  const until = loadLockUntil();
+  if(until && until > now){
+    const left = Math.ceil((until - now)/1000);
+    showWarn(`অস্থায়ীভাবে লক করা আছে। ${left} সেকেন্ড পরে চেষ্টা করো`);
+    return;
+  }
+  const val = pwInput.value.trim();
+  if(!val){
+    showWarn('পাসওয়ার্ড লিখে রিপিট করো');
+    pwInput.classList.add('shake');
+    setTimeout(()=> pwInput.classList.remove('shake'),450);
+    return;
+  }
+  if(val === CORRECT_PW){
+    hideWarn();
+    attempts = 0;
+    saveAttempts(0);
+    saveUnlocked(true);
+    unlockUI();
+    pwInput.value = '';
+  } else {
+    attempts += 1;
+    saveAttempts(attempts);
+    pwInput.classList.add('shake');
+    setTimeout(()=> pwInput.classList.remove('shake'),450);
+    showWarn(`ভুল পাসওয়ার্ড। চেষ্টা: ${attempts} / ${MAX_ATTEMPTS}`);
+    if(attempts >= MAX_ATTEMPTS){
+      const untilTs = Date.now() + LOCK_SECONDS * 1000;
+      saveLockUntil(untilTs);
+      checkLockStatus();
+      showWarn(`অনেকবার ভুল হয়েছে। ${LOCK_SECONDS} সেকেন্ডের জন্য লক করা হলো`);
     }
+  }
+}
 
-    /* ===========================
-       পোমোডোরো টাইমার
-       =========================== */
-    const startBtn = document.getElementById('startTimer');
-    const pauseBtn = document.getElementById('pauseTimer');
-    const resetBtn = document.getElementById('resetTimer');
-    const timeDisplay = document.getElementById('timeDisplay');
-    const timerState = document.getElementById('timerState');
+/* ===========================
+   পোমোডোরো টাইমার (২৫/৫)
+   =========================== */
+const startBtn = document.getElementById('startTimer');
+const pauseBtn = document.getElementById('pauseTimer');
+const resetBtn = document.getElementById('resetTimer');
+const timeDisplay = document.getElementById('timeDisplay');
+const timerState = document.getElementById('timerState');
 
-    // টাইমিং কনফিগ
-    const WORK_SEC = 25 * 60;
-    const BREAK_SEC = 5 * 60;
-    let timer = null;
-    let remaining = WORK_SEC;
-    let inBreak = false;
-    let running = false;
+const WORK_SEC = 25 * 60;
+const BREAK_SEC = 5 * 60;
+let timer = null;
+let remaining = WORK_SEC;
+let inBreak = false;
+let running = false;
 
-    // নোটিফিকেশন সাপোর্ট
-    let notifyPerm = Notification && Notification.permission === 'granted';
+function formatTime(s){ const mm = String(Math.floor(s/60)).padStart(2,'0'); const ss = String(s%60).padStart(2,'0'); return `${mm}:${ss}`; }
+function updateTimeUI(){ timeDisplay.textContent = formatTime(remaining); }
+updateTimeUI();
 
-    function formatTime(s){
-      const mm = String(Math.floor(s/60)).padStart(2,'0');
-      const ss = String(s%60).padStart(2,'0');
-      return `${mm}:${ss}`;
-    }
+function beep(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'sine';
+    o.frequency.value = 880;
+    g.gain.value = 0.02;
+    o.connect(g); g.connect(ctx.destination);
+    o.start();
+    setTimeout(()=>{ o.stop(); ctx.close(); }, 420);
+  }catch(e){}
+}
 
-    function updateTimeUI(){
-      timeDisplay.textContent = formatTime(remaining);
-    }
-    updateTimeUI();
+function sendNotification(title, body){
+  if(!("Notification" in window)) return;
+  if(Notification.permission === 'granted'){
+    new Notification(title, { body });
+  } else if(Notification.permission !== 'denied'){
+    Notification.requestPermission().then(permission=>{
+      if(permission === 'granted') new Notification(title, { body });
+    }).catch(()=>{});
+  }
+}
 
-    function beep(){
-      // ছোট বীপ টোন তৈরি
-      try{
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.type = 'sine';
-        o.frequency.value = 880;
-        o.connect(g);
-        g.connect(ctx.destination);
-        g.gain.value = 0.02;
-        o.start();
-        setTimeout(()=>{ o.stop(); ctx.close(); }, 450);
-      }catch(e){}
-    }
-
-    function sendNotification(title, body){
-      if(!("Notification" in window)) return;
-      if(Notification.permission === 'granted'){
-        const n = new Notification(title, { body });
-      }else if(Notification.permission !== 'denied'){
-        Notification.requestPermission().then(permission=>{
-          if(permission === 'granted'){
-            const n = new Notification(title,{ body });
-          }
-        });
-      }
-    }
-
-    function startTimer(){
-      if(running) return;
-      running = true;
-      timerState.textContent = inBreak ? 'বিরতি চলছে' : 'কাজ চলছে';
-      timer = setInterval(()=>{
-        remaining-=1;
-        if(remaining <= 0){
-          // শেষ
-          clearInterval(timer);
-          running = false;
-          beep();
-          sendNotification('পোমোডোরো শেষ', inBreak ? 'বিরতি শেষ' : 'কাজের সময় শেষ');
-          // স্টেট বদলাও
-          if(!inBreak){
-            inBreak = true;
-            remaining = BREAK_SEC;
-            timerState.textContent = 'বিরতি চলছে';
-            startTimer(); // অটোমেটিক শুরু করা যেতে পারে
-          }else{
-            // বিরতি শেষ হলে রিসেট এ ফেরত
-            inBreak = false;
-            remaining = WORK_SEC;
-            timerState.textContent = 'প্রস্তুত';
-          }
-        }
+function startTimer(){
+  if(running) return;
+  running = true;
+  timerState.textContent = inBreak ? 'বিরতি চলছে' : 'কাজ চলছে';
+  timer = setInterval(()=>{
+    remaining -= 1;
+    if(remaining <= 0){
+      clearInterval(timer);
+      running = false;
+      beep();
+      sendNotification('পোমোডোরো', inBreak ? 'বিরতি শেষ' : 'কাজের সময় শেষ');
+      if(!inBreak){
+        inBreak = true;
+        remaining = BREAK_SEC;
+        startTimer(); // স্বয়ংক্রিয়ভাবে বিরতি শুরু
+      } else {
+        inBreak = false;
+        remaining = WORK_SEC;
+        timerState.textContent = 'প্রস্তুত';
         updateTimeUI();
-      },1000);
-    }
-
-    function pauseTimer(){
-      if(timer) { clearInterval(timer); timer = null; running = false; timerState.textContent = 'পজ করা হয়েছে'; }
-    }
-    function resetTimer(){
-      pauseTimer();
-      inBreak = false;
-      remaining = WORK_SEC;
+      }
+    } else {
       updateTimeUI();
-      timerState.textContent = 'রিসেট করা হয়েছে';
     }
+  }, 1000);
+}
+function pauseTimer(){ if(timer){ clearInterval(timer); timer = null; running = false; timerState.textContent = 'পজ করা হয়েছে'; } }
+function resetTimer(){ pauseTimer(); inBreak = false; remaining = WORK_SEC; updateTimeUI(); timerState.textContent = 'রিসেট করা হয়েছে'; }
 
-    startBtn.addEventListener('click', ()=>{
-      // নোটিফিকেশন পারমিশন চাইলে একবার ইনিশিয়েট করো
-      if("Notification" in window && Notification.permission !== 'granted' && Notification.permission !== 'denied'){
-        Notification.requestPermission().then(()=>{ /* ইউজার সিদ্ধান্ত নিলেই চলবে */ });
-      }
-      startTimer();
-    });
-    pauseBtn.addEventListener('click', pauseTimer);
-    resetBtn.addEventListener('click', resetTimer);
+startBtn.addEventListener('click', ()=>{ if("Notification" in window && Notification.permission === 'default') Notification.requestPermission().catch(()=>{}); startTimer(); });
+pauseBtn.addEventListener('click', pauseTimer);
+resetBtn.addEventListener('click', resetTimer);
 
-    /* ===========================
-       লোকাল অডিও প্লেয়ার
-       =========================== */
-    const audioInput = document.getElementById('audioFile');
-    const player = document.getElementById('player');
-    const playPauseAudio = document.getElementById('playPauseAudio');
-    const fileNameDisplay = document.getElementById('fileName');
+/* ===========================
+   লোকাল অডিও প্লেয়ার
+   =========================== */
+const audioInput = document.getElementById('audioFile');
+const player = document.getElementById('player');
+const playPauseAudio = document.getElementById('playPauseAudio');
+const fileNameDisplay = document.getElementById('fileName');
 
-    audioInput.addEventListener('change', (e)=>{
-      const f = e.target.files && e.target.files[0];
-      if(!f) return;
-      const url = URL.createObjectURL(f);
-      player.src = url;
-      fileNameDisplay.textContent = f.name;
-      playPauseAudio.disabled = false;
-      playPauseAudio.textContent = 'প্লে';
-    });
+audioInput.addEventListener('change', (e)=>{
+  const f = e.target.files && e.target.files[0];
+  if(!f) return;
+  const url = URL.createObjectURL(f);
+  player.src = url;
+  fileNameDisplay.textContent = f.name;
+  playPauseAudio.disabled = false;
+  playPauseAudio.textContent = 'প্লে';
+});
+playPauseAudio.addEventListener('click', ()=>{
+  if(player.paused){
+    player.play().catch(()=>{});
+    playPauseAudio.textContent = 'পজ';
+  } else {
+    player.pause();
+    playPauseAudio.textContent = 'প্লে';
+  }
+});
+player.addEventListener('ended', ()=> playPauseAudio.textContent = 'প্লে');
 
-    playPauseAudio.addEventListener('click', ()=>{
-      if(player.paused){
-        player.play();
-        playPauseAudio.textContent = 'পজ';
-      }else{
-        player.pause();
-        playPauseAudio.textContent = 'প্লে';
-      }
-    });
-    // অডিও শেষ হলে বোতাম আপডেট
-    player.addEventListener('ended', ()=> { playPauseAudio.textContent = 'প্লে'; });
+/* ===========================
+   ইনিশিয়ালাইজ ও লোড স্টেট
+   =========================== */
+if(isUnlocked()){
+  renderChapters();
+}
+updateProgressUI();
+checkLockStatus();
 
-    /* ===========================
-       পেজ লোডে ইনিশিয়ালাইজ
-       =========================== */
-    // যদি আগেই আনলক করা থাকে, রেন্ডার করে দাও
-    if(isUnlocked()){
-      renderChapters();
-    }
-
-    // লোকাল স্টোরেজ থেকে আগের প্রগ্রেস লোড করে UI আপডেট
-    updateProgressUI();
-
-    // পেজ লোডে লক চেক
-    checkLockStatus();
-
-    // সার্ভিস: যদি ব্যবহারকারী নতুন ট্যাবে পাসওয়ার্ড দিয়ে আসে, কুকি বা স্টোরেজ ইতিমধ্যেই আপডেট থাকবে
-    // এখানে আমরা কোনো সার্ভার-সাইড সিকিউরিটি দেইনি, সবকিছু ক্লায়েন্টে; সেটা সচেতনভাবে নোট করো।
-
-    /* ===========================
-       ছোট ভ্যালিডেশন ও নিরাপত্তা টিপ
-       - লক্ষণীয়: পাসওয়ার্ড ক্লায়েন্ট-সাইডে আছে।
-       - এটা লোকাল শেয়ার করা কন্টেন্টের জন্য ঠিক আছে।
-       =========================== */
-
-  </script>
-
+</script>
 </body>
 </html>
