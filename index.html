@@ -113,7 +113,17 @@ body{
   background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(247,252,255,0.85));
   box-shadow: 0 20px 60px rgba(15,56,100,0.08);
 }
-@media(max-width:920px){ .container{grid-template-columns:1fr;padding:14px} }
+/* মোবাইল স্ক্রিনের জন্য লেআউট পরিবর্তন */
+@media(max-width:920px){ 
+    .container{
+        grid-template-columns:1fr;
+        padding:14px;
+        /* মোবাইল স্ক্রীনে সম্পূর্ণ উইডথ ব্যবহার */
+        max-width:100%; 
+    } 
+    /* মোবাইল স্ক্রীনে প্যাডিং কমানো */
+    body{ padding:10px; }
+}
 
 /* হেডার */
 .header h1{margin:0;font-size:20px}
@@ -146,6 +156,12 @@ input[type=password]:focus{box-shadow:0 10px 30px rgba(62,160,255,0.06);border-c
 .toggle-btn{ background:transparent; border:1px solid rgba(34,100,180,0.06); color:var(--accent-2); padding:8px 10px; border-radius:9px; cursor:pointer }
 .toggle-btn:hover{ background:rgba(62,160,255,0.06) }
 .checkbox{ display:flex; gap:8px; align-items:center; color:var(--muted); font-size:13px }
+/* মোবাইলে বাটন ও চেকবক্স এর স্পেসিং */
+@media(max-width:400px){
+    .chapter{ flex-direction:column; align-items:flex-start; gap:8px; }
+    .controls{ width:100%; justify-content:space-between; }
+    .checkbox{ flex:1; }
+}
 
 /* প্রগ্রেস */
 .progress-wrap{ margin-top:16px; padding:12px; border-radius:12px; background:linear-gradient(180deg,#fff,#fbfdff); border:1px solid rgba(34,100,180,0.04) }
@@ -163,6 +179,12 @@ input[type=password]:focus{box-shadow:0 10px 30px rgba(62,160,255,0.06);border-c
 .right .card{ background:linear-gradient(180deg,#fff,#fbfdff); padding:14px; border-radius:12px; border:1px solid rgba(34,100,180,0.04); box-shadow:0 8px 30px rgba(34,100,180,0.04); margin-bottom:12px }
 .time-display{ font-size:30px; font-weight:900; color:var(--accent-2); padding:8px 16px; border-radius:12px; display:inline-block; background:linear-gradient(180deg,rgba(62,160,255,0.06),rgba(35,111,191,0.03)) }
 .glow{ display:flex; align-items:center; gap:10px; padding:8px; border-radius:10px; background:linear-gradient(90deg, rgba(62,160,255,0.08), rgba(35,111,191,0.03)); box-shadow:0 10px 40px rgba(62,160,255,0.05) }
+/* অডিও প্লেয়ার - মোবাইলে বাটন স্টাইল */
+@media(max-width:400px){
+    .glow{ flex-direction:column; align-items:stretch; }
+    .glow div:first-child{ text-align:center; }
+    .glow div:last-child{ display:flex; justify-content:center; }
+}
 
 /* ফুটার */
 footer{ grid-column:1/-1; text-align:center; color:var(--muted); margin-top:12px; font-size:13px }
@@ -170,14 +192,13 @@ footer{ grid-column:1/-1; text-align:center; color:var(--muted); margin-top:12px
 </head>
 <body>
 
-<!-- ব্যাকগ্রাউন্ড অ্যানিমেশন এলিমেন্টস -->
 <div class="bg-canvas" aria-hidden="true">
   <div class="bg-wave"></div>
 
-  <!-- একাধিক ছোট এটম পজিশনিং (CSS ইনলাইন style দিয়ে র‍্যান্ডম প্লেসমেন্ট) -->
   <div class="atom" style="left:6%;top:18%; animation-duration:7s;"></div>
   <div class="atom small" style="left:20%;top:8%; animation-duration:9s;"></div>
   <div class="atom" style="left:12%;top:68%; animation-duration:8s;"></div>
+  
   <div class="molecule" style="left:72%;top:22%; animation-duration:10s;">
     <div class="atom small" style="background:linear-gradient(#fff,#8fd1ff)"></div>
     <div class="atom" style="background:linear-gradient(#fff,#cfe9ff)"></div>
@@ -191,19 +212,24 @@ footer{ grid-column:1/-1; text-align:center; color:var(--muted); margin-top:12px
 
   <div class="atom" style="left:50%;top:12%; animation-duration:11s; background:linear-gradient(#fff,#d0eeff)"></div>
   <div class="atom small" style="left:62%;top:46%; animation-duration:6.5s; background:linear-gradient(#fff,#e2f6ff)"></div>
+
+  <div class="atom" style="right:10%;bottom:5%; animation-duration:9s; background:linear-gradient(#fff,#90c7f2)"></div>
+  <div class="atom small" style="right:30%;top:55%; animation-duration:7.2s; background:linear-gradient(#fff,#bfe0ff)"></div>
+  <div class="molecule" style="left:35%;bottom:10%; animation-duration:13s;">
+    <div class="orbit" style="width:60px;height:60px;left:-8px;top:-8px;animation-duration:10s;border-color:rgba(35,111,191,0.18)"></div>
+    <div class="atom" style="background:linear-gradient(#fff,#c0e4f8)"></div>
+    <div class="atom small" style="background:linear-gradient(#fff,#d3f0ff)"></div>
+  </div>
 </div>
 
-<!-- মুল কন্টেন্ট -->
 <div class="container" role="application" aria-label="অধ্যয়ন সহায়ক">
 
-  <!-- বাম অংশ -->
   <div>
     <div class="header">
       <h1>কাজিম ভাইয়ের অধ্যয়ন সহায়ক</h1>
       <p>পাসওয়ার্ড দিয়ে অধ্যায় তালিকা আনলক করুন — ব্যাকগ্রাউন্ডে chemistry animation</p>
     </div>
 
-    <!-- পাসওয়ার্ড ইনপুট -->
     <div class="lock-card" id="lockCard">
       <input id="pw" type="password" placeholder="পাসওয়ার্ড লিখুন (উদাহরণ: chem2025)" aria-label="পাসওয়ার্ড ইনপুট">
       <button class="btn" id="unlockBtn">আনলক করো</button>
@@ -215,7 +241,6 @@ footer{ grid-column:1/-1; text-align:center; color:var(--muted); margin-top:12px
       <div id="lockInfo" style="color:var(--danger);font-weight:800;display:none"></div>
     </div>
 
-    <!-- অধ্যায় তালিকা (ডিফল্ট লুকানো) -->
     <div id="chaptersArea" style="display:none">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
         <strong style="font-size:16px">অধ্যায় তালিকা</strong>
@@ -235,7 +260,6 @@ footer{ grid-column:1/-1; text-align:center; color:var(--muted); margin-top:12px
     <footer>© 2025 কাজিম ভাইয়ার অধ্যয়ন সহায়ক ওয়েবঅ্যাপ</footer>
   </div>
 
-  <!-- ডান অংশ -->
   <div class="right">
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center">
@@ -273,7 +297,6 @@ footer{ grid-column:1/-1; text-align:center; color:var(--muted); margin-top:12px
   </div>
 </div>
 
-<!-- মোডাল -->
 <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <h3 id="modalTitle">পিডিএফ লিংক</h3>
