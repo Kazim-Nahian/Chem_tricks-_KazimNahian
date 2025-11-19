@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>কাজিম ভাইয়ের রসায়ন নোট – অধ্যায়ভিত্তিক PDF এবং Pomodoro সহ</title>
-<meta name="theme-color" content="#3ea0ff">
+<title>রসায়ন নোট – অধ্যায়ভিত্তিক</title>
+<meta name="theme-color" content="#451032">
 <style>
 :root{
   --accent:#3ea0ff;
@@ -77,7 +77,7 @@ footer{ text-align:center;color:var(--muted);font-size:13px;padding:8px 0;opacit
 <div class="app" role="application" aria-label="রসায়ন নোট অ্যাপ">
 
   <div class="header card" role="banner">
-    <h1>কাজিম ভাইয়ের রসায়ন নোট</h1>
+    <h1>রসায়ন নোট</h1>
     <p>পাসওয়ার্ড দিয়ে অধ্যায় আনলক করো — অধ্যায় ১-এর জন্য লিংক যোগ করা হয়নি</p>
   </div>
 
@@ -161,8 +161,9 @@ footer{ text-align:center;color:var(--muted);font-size:13px;padding:8px 0;opacit
     </div>
     <audio id="player" controls style="width:100%;margin-top:8px;display:none"></audio>
   </div>
-
-  <footer>© 2025 কাজিম ভাইয়ের রসায়ন নোট — Local only</footer>
+<footer>শিক্ষক জনাব মোঃ মেহেদী হাসান</footer>
+  <footer>© 2025 কাজিম নাহইয়ান — Local only</footer>
+  
 </div>
 
 <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
@@ -199,7 +200,7 @@ const chapters = [
 const CORRECT_PW="chem2025";
 const MAX_ATTEMPTS=5;
 const LOCK_SECONDS=30;
-const AUTO_LOCK_INTERVAL=60*1000; // 1 মিনিট
+const AUTO_LOCK_INTERVAL=60*850; // 1 মিনিট
 
 /* LocalStorage Keys */
 const KEYS={PROG:'kb_chem_prog_v1',UNLOCK:'kb_chem_un_v1',ATT:'kb_chem_att_v1',LOCK:'kb_chem_lock_v1',NOTE:'kb_chem_note_v1'};
@@ -432,3 +433,4 @@ if(isUnlocked()) showChapters();
 </script>
 </body>
 </html>
+
