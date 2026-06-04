@@ -2,183 +2,401 @@
 <html lang="bn">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>রসায়ন নোট – অধ্যায়ভিত্তিক</title>
-<meta name="theme-color" content="#451032">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>রসায়ন ড্যাশবোর্ড – মেহেদী স্যার এক্সক্লুসিভ</title>
+<meta name="theme-color" content="#111827">
 <style>
-:root{
-  --accent:#3ea0ff;
-  --accent-2:#236fbf;
-  --muted:#556677;
-  --bg:#f5fbff;
-  --card:#ffffff;
-  --glass:rgba(255,255,255,0.85);
-  --danger:#e04b4b;
-  --radius:14px;
-  --gap:12px;
+:root {
+  --accent: #3ea0ff;
+  --accent-2: #236fbf;
+  --muted: #64748b;
+  --card: rgba(255, 255, 255, 0.8);
+  --text: #0f172a;
+  --border: rgba(34, 100, 180, 0.12);
+  --danger: #ef4444;
+  --radius: 16px;
+  --gap: 12px;
   font-family: "Noto Sans Bengali", "Segoe UI", Roboto, system-ui, sans-serif;
-  -webkit-font-smoothing:antialiased;
+  -webkit-font-smoothing: antialiased;
 }
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;
-  padding:14px;
-  background:linear-gradient(180deg,#eef9ff 0%, #f7fdff 60%);
-  color:#082033;
-  display:flex;
-  justify-content:center;
-  font-size:15px;
-  line-height:1.45;
+
+[data-theme="dark"] {
+  --accent: #3ea0ff;
+  --accent-2: #60a5fa;
+  --muted: #94a3b8;
+  --card: rgba(15, 23, 42, 0.75);
+  --text: #f8fafc;
+  --border: rgba(255, 255, 255, 0.1);
 }
-.app{width:100%;max-width:520px;display:flex;flex-direction:column;gap:var(--gap);}
-.header{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white;padding:14px;border-radius:18px;box-shadow:0 8px 28px rgba(33,102,180,0.12);}
-.header h1{font-size:18px;margin:0}
-.header p{margin:6px 0 0;font-size:13px;opacity:0.95}
-.card{background:var(--card);border-radius:14px;padding:12px;box-shadow:0 8px 26px rgba(20,60,100,0.04);}
-.lock-row{display:flex;gap:8px;align-items:center}
-.lock-row input[type="password"]{flex:1;padding:12px;border-radius:12px;border:1px solid rgba(34,100,180,0.08);outline:none;background:linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,255,255,0.9));font-size:15px;}
-.btn{background:linear-gradient(180deg,var(--accent),var(--accent-2));color:#fff;border:none;padding:10px 12px;border-radius:12px;font-weight:700;cursor:pointer;min-width:88px;}
-.btn.ghost{background:transparent;border:1px solid rgba(35,111,191,0.08);color:var(--accent-2);}
-.warn{color:var(--danger);margin-top:8px;font-weight:700;display:none}
-.chapter{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px;border-radius:12px;background:linear-gradient(180deg,#fff,#fbfdff);border:1px solid rgba(34,100,180,0.04);margin-top:8px;}
-.chapter .meta{display:flex;gap:8px;align-items:center}
-.chapter h4{margin:0;font-size:15px}
-.controls{display:flex;gap:6px;align-items:center}
-.small-btn{background:transparent;border:1px solid rgba(34,100,180,0.06);padding:8px 10px;border-radius:10px;font-weight:700;color:var(--accent-2);cursor:pointer;}
-.checkbox{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:13px}
-.progress-wrap{margin-top:12px;padding:10px;border-radius:12px;background:linear-gradient(180deg,#fff,#fbfdff);border:1px solid rgba(34,100,180,0.04)}
-.progress{height:12px;background:#eaf6ff;border-radius:10px;overflow:hidden}
-.progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .45s ease}
-.progress-text{margin-top:8px;font-weight:800;color:var(--accent-2);font-size:13px}
-.tools{display:flex;flex-direction:column;gap:10px;margin-top:6px}
-.time-display{font-size:28px;font-weight:900;color:var(--accent-2);padding:8px 12px;border-radius:12px;background:linear-gradient(180deg,rgba(62,160,255,0.06),rgba(35,111,191,0.03));display:inline-block}
-.tool-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.note-textarea{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(34,100,180,0.06);resize:vertical;min-height:120px;margin-top:8px}
-.glow{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:10px;background:linear-gradient(90deg, rgba(62,160,255,0.06), rgba(35,111,191,0.03));gap:8px}
-.file-name{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}
-.audio-controls{display:flex;gap:8px;align-items:center}
-.modal-backdrop{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(4,20,40,0.45);z-index:100}
-.modal-backdrop.show{display:flex}
-.modal{width:92%;max-width:520px;background:linear-gradient(180deg,#fff,#f8fcff);padding:14px;border-radius:12px;box-shadow:0 26px 70px rgba(3,32,63,0.22)}
-.modal .link{display:block;padding:10px;border-radius:10px;border:1px dashed rgba(34,100,180,0.08);color:var(--accent-2);text-decoration:none;margin-bottom:8px;background:linear-gradient(180deg,#fff,#f7fbff);word-break:break-all}
-footer{ text-align:center;color:var(--muted);font-size:13px;padding:8px 0;opacity:0.95}
-@media (max-width:420px){
-  body{padding:10px}
-  .header h1{font-size:16px}
-  .time-display{font-size:24px}
-  .btn{min-width:72px;padding:9px 10px}
-  .file-name{max-width:52%}
+
+* { box-sizing: border-box; padding: 0; margin: 0; -webkit-tap-highlight-color: transparent; }
+html, body { min-height: 100vh; color: var(--text); overflow-x: hidden; width: 100%; }
+
+/* ব্যাকগ্রাউন্ড ক্যানভাস */
+#bg-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  background: linear-gradient(135deg, #f0f7ff 0%, #e2efff 100%);
+  transition: background 0.3s;
 }
+[data-theme="dark"] #bg-canvas {
+  background: linear-gradient(135deg, #030712 0%, #0f172a 100%);
+}
+
+.wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 12px;
+  width: 100%;
+}
+
+.app { 
+  width: 100%; 
+  max-width: 480px; 
+  display: flex; 
+  flex-direction: column; 
+  gap: var(--gap); 
+  z-index: 1; 
+}
+
+/* গ্লাস মরফিজম কার্ড */
+.card {
+  background: var(--card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+}
+
+/* আল্ট্রা প্রিমিয়াম হেডার */
+.header {
+  background: linear-gradient(135deg, #1e3a8a, #0f172a);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+}
+[data-theme="dark"] .header {
+  background: linear-gradient(135deg, #0f172a, #020617);
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+.header h1 { font-size: 19px; font-weight: 800; letter-spacing: 0.5px; background: linear-gradient(90deg, #fff, #93c5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.owner-tag { font-size: 13px; color: #3ea0ff; font-weight: bold; margin-top: -2px; }
+.creator-badge {
+  font-size: 11px;
+  background: rgba(62, 160, 255, 0.15);
+  border: 1px solid rgba(62, 160, 255, 0.3);
+  padding: 4px 10px;
+  border-radius: 20px;
+  color: #93c5fd;
+  display: inline-block;
+  align-self: flex-start;
+}
+
+.theme-toggle {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lock-row { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+input[type="password"], input[type="number"], textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  outline: none;
+  background: rgba(255, 255, 255, 0.5);
+  color: var(--text);
+  font-size: 14px;
+}
+[data-theme="dark"] input, [data-theme="dark"] textarea { background: rgba(30, 41, 59, 0.6); }
+
+.btn {
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.btn:active { transform: scale(0.96); }
+.btn.ghost { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
+
+/* চ্যাপ্টার রো */
+.chapter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--border);
+  margin-top: 6px;
+}
+[data-theme="dark"] .chapter { background: rgba(255, 255, 255, 0.02); }
+.chapter-title { font-size: 13.5px; font-weight: 600; max-width: 72%; line-height: 1.4; }
+
+/* পর্যায় সারণি গ্রিড */
+.periodic-table {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  margin-top: 8px;
+}
+.element-cell {
+  background: linear-gradient(135deg, rgba(62, 160, 255, 0.1), rgba(35, 111, 191, 0.2));
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 2px;
+  text-align: center;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 13px;
+}
+
+/* অ্যানালিটিক্স বার */
+.analytics-chart { height: 14px; background: rgba(0,0,0,0.05); border-radius: 7px; overflow: hidden; margin-top: 8px; }
+[data-theme="dark"] .analytics-chart { background: rgba(255,255,255,0.1); }
+.chart-fill { height: 100%; background: linear-gradient(90deg, #10b981, #34d399); width: 0%; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+
+.progress { height: 6px; background: rgba(0,0,0,0.04); border-radius: 6px; overflow: hidden; margin-top: 6px; }
+[data-theme="dark"] .progress { background: rgba(255,255,255,0.05); }
+.progress > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .45s ease }
+
+/* মোবাইল মডাল */
+.modal-backdrop { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.4); z-index: 100; backdrop-filter: blur(4px); padding: 16px; }
+.modal-backdrop.show { display: flex; }
+.modal { width: 100%; max-width: 360px; background: var(--card); backdrop-filter: blur(24px); padding: 16px; border-radius: 14px; border: 1px solid var(--border); color: var(--text); }
+
+footer { text-align: center; color: var(--muted); font-size: 11.5px; padding: 12px 0; line-height: 1.4; }
 </style>
 </head>
 <body>
 
-<div class="app" role="application" aria-label="রসায়ন নোট অ্যাপ">
+<canvas id="bg-canvas"></canvas>
 
-  <div class="header card" role="banner">
-    <h1>রসায়ন নোট</h1>
-    <p>পাসওয়ার্ড দিয়ে অধ্যায় আনলক করো — অধ্যায় ১-এর জন্য লিংক যোগ করা হয়নি</p>
-  </div>
+<div class="wrapper">
+  <div class="app" role="application">
 
-  <div class="card" id="lockCard" aria-live="polite">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-      <strong>পাসওয়ার্ড আনলক</strong>
-      <small style="color:var(--muted)"></small>
-    </div>
-    <div class="lock-row">
-      <input id="pw" type="password" placeholder="পাসওয়ার্ড লিখো..." aria-label="পাসওয়ার্ড">
-      <button class="btn" id="unlockBtn">আনলক করো</button>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
-      <button class="btn ghost" id="resetAttempts">চেষ্টা রিসেট করো</button>
-      <div style="flex:1"></div>
-      <div id="lockInfo" style="color:var(--danger);font-weight:800;display:none"></div>
-    </div>
-    <div class="warn" id="warnMsg" role="status">ভুল পাসওয়ার্ড</div>
-  </div>
-
-  <div id="chaptersArea" style="display:none">
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <strong>অধ্যায় তালিকা</strong>
-        <small style="color:var(--muted)">মোট <span id="totalChapters">12</span></small>
-      </div>
-      <div id="chaptersList" aria-live="polite"></div>
-      <div class="progress-wrap" aria-hidden="false">
-        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-          <i id="progressBar"></i>
+    <div class="header card">
+      <div class="header-top">
+        <div>
+          <h1>মেহেদী স্যার রসায়ন নোট</h1>
+          <div class="owner-tag">Director: জনাব মোঃ মেহেদী হাসান</div>
         </div>
-        <div class="progress-text" id="progressText">প্রগতি: 0%</div>
+        <button class="theme-toggle" id="themeBtn">🌙</button>
+      </div>
+      <div class="creator-badge">🚀 Creator & Dev: Kazim Nahian</div>
+    </div>
+
+    <div class="card" id="lockCard">
+      <strong style="font-size: 14px;">🔒 সিকিউর আনলক</strong>
+      <div class="lock-row">
+        <input id="pw" type="password" placeholder="পাসওয়ার্ড লিখো...">
+        <button class="btn" id="unlockBtn">আনলক</button>
       </div>
     </div>
 
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <strong>নিজের নোট (Local)</strong>
-        <small style="color:var(--muted)">LocalStorage এ সংরক্ষিত হবে</small>
+    <div id="chaptersArea" style="display:none">
+      
+      <div class="card">
+        <strong style="font-size:14px;">📈 স্টাডি অ্যানালিটিক্স গ্রাফ</strong>
+        <div class="analytics-chart"><div class="chart-fill" id="chartBar"></div></div>
+        <div class="progress"><i id="progressBar"></i></div>
+        <div style="display:flex; justify-content:space-between; margin-top:6px; font-size:12px; font-weight:bold;">
+          <span id="progressText">প্রগতি: 0%</span>
+          <span id="chartText">সম্পন্ন: ০/১২</span>
+        </div>
       </div>
-      <textarea id="noteText" class="note-textarea" placeholder="এখানে তোমার কেমিস্ট্রি সংক্ষিপ্ত নোট লিখে রাখো..."></textarea>
-      <div style="display:flex;gap:8px;margin-top:10px">
-        <button class="btn" id="saveNote">সেভ করো</button>
-        <button class="btn ghost" id="clearNote">ক্লিয়ার করো</button>
-      </div>
-      <div id="noteSaved" style="color:var(--accent-2);font-weight:700;margin-top:8px;display:none">সফলভাবে সংরক্ষিত হয়েছে</div>
-    </div>
-  </div>
 
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <strong>পোমোডোরো টাইমার</strong>
-      <small style="color:var(--muted)">২৫মিন কাজ / ৫মিন বিরতি</small>
-    </div>
-    <div style="height:10px"></div>
-    <div class="tool-row" style="align-items:center;justify-content:space-between">
-      <div class="time-display" id="timeDisplay">25:00</div>
-      <div style="text-align:right;color:var(--muted);font-size:13px">স্টেট: <span id="timerState">প্রস্তুত</span></div>
-    </div>
-    <div style="height:10px"></div>
-    <div style="display:flex;gap:8px">
-      <button class="btn" id="startTimer">স্টার্ট</button>
-      <button class="btn ghost" id="pauseTimer">পজ</button>
-      <button class="btn ghost" id="resetTimer">রিসেট</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <strong>লোকাল অডিও প্লেয়ার</strong>
-      <small style="color:var(--muted)">নিজের ফাইল সিলেক্ট করো</small>
-    </div>
-    <div style="height:8px"></div>
-    <div class="glow">
-      <div class="file-name" id="fileName">কোনো ফাইল নির্বাচন করা হয়নি</div>
-      <div class="audio-controls">
-        <label class="btn" for="audioFile" style="cursor:pointer;padding:8px 10px">ফাইল নির্বাচন</label>
-        <input id="audioFile" type="file" accept="audio/*" style="display:none">
-        <button class="btn ghost" id="playPauseAudio" disabled>প্লে</button>
+      <div class="card">
+        <strong style="font-size:14px;">📚 অধ্যায় তালিকা</strong>
+        <div id="chaptersList"></div>
       </div>
+
+      <div class="card">
+        <strong style="font-size:14px;">🧪 পর্যায় সারণি (শর্ট ভিউ)</strong>
+        <div class="periodic-table" id="periodicTable"></div>
+      </div>
+
+      <div class="card">
+        <strong style="font-size:14px;">⏱️ পোমোডোরো টাইমার</strong>
+        <div style="display:flex; gap:6px; margin:6px 0; align-items:center;">
+          <input type="number" id="customMin" value="25" min="1" max="60" style="width:60px; padding:6px;">
+          <span style="font-size:12px; font-weight: bold;">মিনিট কাস্টম করো</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.02); padding:8px 12px; border-radius:10px;">
+          <div style="font-size:24px; font-weight:900; color:var(--accent);" id="timeDisplay">25:00</div>
+          <div style="font-size:12px;">স্টেট: <span id="timerState" style="font-weight:bold;">প্রস্তুত</span></div>
+        </div>
+        <div style="display:flex; gap:4px; margin-top:8px;">
+          <button class="btn" id="startTimer" style="padding:8px 12px; font-size:13px;">স্টার্ট</button>
+          <button class="btn ghost" id="pauseTimer" style="padding:8px 12px; font-size:13px;">পজ</button>
+          <button class="btn ghost" id="resetTimer" style="padding:8px 12px; font-size:13px;">রিসেট</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <strong style="font-size:14px;">📝 পার্সোনাল নোটপ্যাড</strong>
+        <textarea id="noteText" rows="3" placeholder="রসায়ন সংক্ষিপ্ত নোট এখানে লেখো..." style="margin-top:6px;"></textarea>
+        <div style="display:flex; gap:6px; margin-top:6px;">
+          <button class="btn" id="saveNote" style="padding:8px 12px; font-size:13px;">সেভ</button>
+          <button class="btn ghost" id="clearNote" style="padding:8px 12px; font-size:13px;">মুছুন</button>
+        </div>
+      </div>
+
     </div>
-    <audio id="player" controls style="width:100%;margin-top:8px;display:none"></audio>
+
+    <footer>
+      মেহেদী হাসান স্যার কর্তৃক স্বত্বাধিকারী<br>
+      Designed & Developed with 💙 by Kazim Nahian
+    </footer>
   </div>
-<footer>শিক্ষক জনাব মোঃ মেহেদী হাসান</footer>
-  <footer>© 2025 কাজিম নাহইয়ান — Local only</footer>
-  
 </div>
 
-<div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <h3 id="modalTitle">পিডিএফ লিংক</h3>
-    <p style="color:var(--muted);margin-top:6px">নীচের লিংকটি ক্লিক করে পিডিএফ খুলুন (যদি লিংক থাকে)</p>
-    <div id="modalLinks" style="margin-top:8px"></div>
-    <div style="text-align:right;margin-top:10px"><button class="btn ghost" id="closeModal">বন্ধ করো</button></div>
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <h3 id="modalTitle" style="font-size:15px;">তথ্য উইন্ডো</h3>
+    <div id="modalLinks" style="line-height:1.5; font-size:13.5px; margin-top:8px;"></div>
+    <div style="text-align:right; margin-top:12px;"><button class="btn ghost" id="closeModal" style="padding:6px 12px; font-size:12px;">বন্ধ করো</button></div>
   </div>
 </div>
 
 <script>
-/* ===========================
-   Chapters Data
-   =========================== */
+// ==========================================
+// ১. সায়েন্টিফিক ইন্টারেক্টিভ ক্যানভাস
+// ==========================================
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+class Particle {
+  constructor() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.radius = Math.random() * 2 + 1;
+    this.vx = (Math.random() - 0.5) * 0.6;
+    this.vy = (Math.random() - 0.5) * 0.6;
+  }
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+    if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+  }
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fillStyle = document.documentElement.getAttribute('data-theme') === 'dark' ? 'rgba(62, 160, 255, 0.3)' : 'rgba(35, 111, 191, 0.2)';
+    ctx.fill();
+  }
+}
+
+function initParticles() {
+  particles = [];
+  const count = Math.min(Math.floor(canvas.width / 12), 45);
+  for (let i = 0; i < count; i++) particles.push(new Particle());
+}
+initParticles();
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  
+  for (let i = 0; i < particles.length; i++) {
+    particles[i].update();
+    particles[i].draw();
+    
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      
+      if (dist < 85) {
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = isDark ? `rgba(62, 160, 255, ${0.18 - dist/850})` : `rgba(35, 111, 191, ${0.15 - dist/850})`;
+        ctx.lineWidth = 0.7;
+        ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(animate);
+}
+animate();
+
+// ==========================================
+// ২. পাসওয়ার্ড ক্রিপ্টো ও সিকিউরিটি
+// ==========================================
+const HASHED_PW = "74495e86d06159516629ecf6fa1311b7fcf76f7b9cc0f0656094b840eb352636"; 
+
+async function sha256(message) {
+  const msgBuffer = new TextEncoder().encode(message);                    
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// ==========================================
+// ৩. ৫ মিনিট নিষ্ক্রিয়তা ট্র্যাকিং (Auto Lock)
+// ==========================================
+let idleTimer = null;
+const IDLE_LIMIT = 5 * 60 * 1000; 
+
+function resetIdleTimer() {
+  if (idleTimer) clearTimeout(idleTimer);
+  if (chaptersArea.style.display === 'block') {
+    idleTimer = setTimeout(() => {
+      chaptersArea.style.display = 'none';
+      lockCard.style.display = 'block';
+      pwInput.value = '';
+      alert('আপনি ৫ মিনিট ধরে নিষ্ক্রিয় ছিলেন! সুরক্ষার জন্য ড্যাশবোর্ডটি আবার লক করা হয়েছে।');
+    }, IDLE_LIMIT);
+  }
+}
+
+['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(evt => {
+  document.addEventListener(evt, resetIdleTimer, true);
+});
+
+// ==========================================
+// ৪. চ্যাপ্টার ডেটাবেজ আপডেট
+// ==========================================
 const chapters = [
   {id:1,title:'অধ্যায় ১ — রসায়নের ধারণা',link:'https://drive.google.com/drive/folders/1Ds1yv14TW_U_fEAQ1CmGNVGWCLsu3mZR?usp=drive_link'},
   {id:2,title:'অধ্যায় ২ — পদার্থের অবস্থা',link:'https://drive.google.com/drive/folders/10VaPzj7WFdz5bLKWtMWC5FbcAdFPrK9b?usp=drive_link'},
@@ -194,243 +412,158 @@ const chapters = [
   {id:12,title:'অধ্যায় ১২ — আমাদের জীবনে রসায়ন',link:'https://drive.google.com/drive/folders/1ahUumVvXBiyy1Urug5cjM5jturpqwq5_?usp=drive_link'}
 ];
 
-/* ===========================
-   Config
-   =========================== */
-const CORRECT_PW="chem2025";
-const MAX_ATTEMPTS=5;
-const LOCK_SECONDS=30;
-const AUTO_LOCK_INTERVAL=60*850; // 1 মিনিট
+const elements = [
+  {sym:'H', name:'হাইড্রোজেন', num:1, mass:1}, {sym:'He', name:'হিলিয়াম', num:2, mass:4},
+  {sym:'Li', name:'লিথিয়াম', num:3, mass:7}, {sym:'Be', name:'বেরিলিয়াম', num:4, mass:9},
+  {sym:'B', name:'বোরন', num:5, mass:11}, {sym:'C', name:'কার্বন', num:6, mass:12},
+  {sym:'N', name:'নাইট্রোজেন', num:7, mass:14}, {sym:'O', name:'অক্সিজেন', num:8, mass:16},
+  {sym:'F', name:'ফ্লোরিন', num:9, mass:19}, {sym:'Ne', name:'নিয়ন', num:10, mass:20}
+];
 
-/* LocalStorage Keys */
-const KEYS={PROG:'kb_chem_prog_v1',UNLOCK:'kb_chem_un_v1',ATT:'kb_chem_att_v1',LOCK:'kb_chem_lock_v1',NOTE:'kb_chem_note_v1'};
-
-/* Helper functions */
-function saveProgress(obj){ localStorage.setItem(KEYS.PROG,JSON.stringify(obj)); }
-function loadProgress(){ try{ return JSON.parse(localStorage.getItem(KEYS.PROG))||{} }catch(e){ return {}; } }
-function saveUnlocked(v){ localStorage.setItem(KEYS.UNLOCK, v?'1':'0'); }
-function isUnlocked(){ return localStorage.getItem(KEYS.UNLOCK)==='1'; }
-function saveAttempts(n){ localStorage.setItem(KEYS.ATT,String(n)); }
-function loadAttempts(){ return parseInt(localStorage.getItem(KEYS.ATT))||0; }
-function saveLockUntil(ts){ if(ts)localStorage.setItem(KEYS.LOCK,String(ts)); else localStorage.removeItem(KEYS.LOCK); }
-function loadLockUntil(){ const v=localStorage.getItem(KEYS.LOCK); return v?parseInt(v,10):null; }
-function saveNote(s){ localStorage.setItem(KEYS.NOTE,s||''); }
-function loadNote(){ return localStorage.getItem(KEYS.NOTE)||''; }
-
-/* DOM refs */
 const pwInput=document.getElementById('pw');
 const unlockBtn=document.getElementById('unlockBtn');
-const warnMsg=document.getElementById('warnMsg');
 const chaptersArea=document.getElementById('chaptersArea');
+const lockCard=document.getElementById('lockCard');
+const themeBtn=document.getElementById('themeBtn');
 const chaptersList=document.getElementById('chaptersList');
 const progressBar=document.getElementById('progressBar');
 const progressText=document.getElementById('progressText');
-const modalBackdrop=document.getElementById('modalBackdrop');
-const modalLinks=document.getElementById('modalLinks');
-const closeModal=document.getElementById('closeModal');
-const lockInfo=document.getElementById('lockInfo');
-const resetAttemptsBtn=document.getElementById('resetAttempts');
-const totalChaptersEl=document.getElementById('totalChapters');
-const noteText=document.getElementById('noteText');
-const saveNoteBtn=document.getElementById('saveNote');
-const clearNoteBtn=document.getElementById('clearNote');
-const noteSaved=document.getElementById('noteSaved');
+const chartBar=document.getElementById('chartBar');
+const chartText=document.getElementById('chartText');
 
-/* ===========================
-   State
-   =========================== */
-let attempts=loadAttempts()||0;
-let lockInterval=null;
-let autoLockTimer=null;
+// থিম কন্ট্রোল
+if(localStorage.getItem('theme')==='dark') {
+  document.documentElement.setAttribute('data-theme', 'dark');
+  themeBtn.textContent = '☀️';
+}
+themeBtn.addEventListener('click', ()=>{
+  if(document.documentElement.getAttribute('data-theme') === 'dark') {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '🌙';
+    localStorage.setItem('theme', 'light');
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeBtn.textContent = '☀️';
+    localStorage.setItem('theme', 'dark');
+  }
+});
 
-/* ===========================
-   Chapters Rendering
-   =========================== */
+// পুশ নোটিফিকেশন
+function sendNotification(t, b) {
+  if (Notification.permission === "granted") new Notification(t, { body: b });
+}
+if (Notification.permission !== "denied" && Notification.permission !== "granted") Notification.requestPermission();
+
+// আনলক ভেরিফিকেশন
+async function runUnlock() {
+  const rawInput = pwInput.value.trim();
+  const inputHash = await sha256(rawInput);
+  
+  if(inputHash === HASHED_PW || rawInput === "chem2025") {
+    lockCard.style.display = 'none';
+    chaptersArea.style.display = 'block';
+    renderChapters();
+    resetIdleTimer();
+    sendNotification("স্বাগতম কাজিম!", "ড্যাশবোর্ড সফলভাবে আনলক হয়েছে।");
+  } else {
+    alert('ভুল পাসওয়ার্ড!');
+  }
+}
+unlockBtn.addEventListener('click', runUnlock);
+pwInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') runUnlock(); });
+
+// চ্যাপ্টার রেন্ডার
 function renderChapters(){
   chaptersList.innerHTML='';
-  const saved=loadProgress();
+  const saved = JSON.parse(localStorage.getItem('chem_progress')) || {};
   chapters.forEach(ch=>{
     const div=document.createElement('div');
     div.className='chapter';
     div.innerHTML=`
-      <div class="meta">
-        <div>
-          <h4>${ch.title}</h4>
-          <div style="color:var(--muted);font-size:13px">${ch.link?'পিডিএফ উপলব্ধ':'পিডিএফ নেই'}</div>
-        </div>
-      </div>
-      <div class="controls">
-        <button class="small-btn" data-id="${ch.id}" ${!ch.link?'disabled':''}>খুলো</button>
-        <label class="checkbox"><input type="checkbox" ${saved[ch.id]?'checked':''}> সম্পন্ন</label>
+      <div class="chapter-title">${ch.title}</div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button class="btn" style="padding:4px 10px; font-size:11px;" onclick="window.open('${ch.link}','_blank')">PDF</button>
+        <input type="checkbox" style="width:16px; height:16px;" ${saved[ch.id]?'checked':''} onchange="saveProg(${ch.id}, this.checked)">
       </div>`;
     chaptersList.appendChild(div);
   });
   updateProgress();
 }
+
+function saveProg(id, isChecked) {
+  let saved = JSON.parse(localStorage.getItem('chem_progress')) || {};
+  saved[id] = isChecked;
+  localStorage.setItem('chem_progress', JSON.stringify(saved));
+  updateProgress();
+}
+
 function updateProgress(){
-  const saved=loadProgress();
-  const done=Object.values(saved).filter(v=>v).length;
-  const pct=Math.round((done/chapters.length)*100);
-  progressBar.style.width=pct+'%';
-  progressText.textContent='প্রগতি: '+pct+'%';
+  const saved = JSON.parse(localStorage.getItem('chem_progress')) || {};
+  const done = Object.values(saved).filter(v=>v).length;
+  const pct = Math.round((done / chapters.length) * 100);
+  
+  if(progressBar) progressBar.style.width = pct + '%';
+  if(chartBar) chartBar.style.width = pct + '%';
+  if(progressText) progressText.textContent = 'প্রগতি: ' + pct + '%';
+  if(chartText) chartText.textContent = `সম্পন্ন: ${done}/১২`;
 }
 
-/* ===========================
-   Unlock Logic
-   =========================== */
-function lockApp(msg){
-  chaptersArea.style.display='none';
-  unlockBtn.disabled=true;
-  pwInput.disabled=true;
-  let until=Date.now()+LOCK_SECONDS*1000;
-  saveLockUntil(until);
-  lockInfo.style.display='inline';
-  lockInfo.textContent=`লক হয়েছে ${LOCK_SECONDS} সেকেন্ডের জন্য`;
-  lockInterval=setInterval(()=>{
-    const rem=Math.ceil((until-Date.now())/1000);
-    if(rem<=0){ clearInterval(lockInterval); unlockBtn.disabled=false; pwInput.disabled=false; lockInfo.style.display='none'; saveLockUntil(null); }
-    else lockInfo.textContent=`লক হয়েছে ${rem} সেকেন্ডের জন্য`;
-  },500);
-}
-function unlockApp(){
-  if(isUnlocked()) return showChapters();
-  if(loadLockUntil() && Date.now()<loadLockUntil()){ lockApp(); return; }
+// পর্যায় সারণি
+const pTable = document.getElementById('periodicTable');
+elements.forEach(el => {
+  const cell = document.createElement('div');
+  cell.className = 'element-cell';
+  cell.innerHTML = `<strong>${el.sym}</strong><br><span style="font-size:10px;">${el.num}</span>`;
+  cell.onclick = () => {
+    document.getElementById('modalTitle').textContent = `${el.name} (${el.sym})`;
+    document.getElementById('modalLinks').innerHTML = `পারমাণবিক সংখ্যা: <b>${el.num}</b><br>পারমাণবিক ভর: <b>${el.mass}</b>`;
+    document.getElementById('modalBackdrop').classList.add('show');
+  };
+  pTable.appendChild(cell);
+});
+document.getElementById('closeModal').onclick = () => document.getElementById('modalBackdrop').classList.remove('show');
 
-  const val=pwInput.value.trim();
-  if(val===CORRECT_PW){
-    attempts=0;
-    saveAttempts(attempts);
-    saveUnlocked(true);
-    showChapters();
-  }else{
-    attempts++;
-    saveAttempts(attempts);
-    warnMsg.style.display='block';
-    setTimeout(()=>warnMsg.style.display='none',1800);
-    if(attempts>=MAX_ATTEMPTS) lockApp();
-  }
-}
-function showChapters(){
-  chaptersArea.style.display='block';
-  renderChapters();
-  pwInput.value='';
-  startAutoLock();
+// টাইমার
+let timerInterval = null, timerSec = 25 * 60;
+const timeDisplay = document.getElementById('timeDisplay');
+const timerState = document.getElementById('timerState');
+const customMin = document.getElementById('customMin');
+
+if(customMin) {
+  customMin.onchange = () => {
+    timerSec = customMin.value * 60;
+    timeDisplay.textContent = `${customMin.value.toString().padStart(2,'0')}:00`;
+  };
 }
 
-/* ===========================
-   Auto Lock Every Minute
-   =========================== */
-function startAutoLock(){
-  if(autoLockTimer) clearTimeout(autoLockTimer);
-  autoLockTimer=setTimeout(()=>{
-    saveUnlocked(false);
-    alert('অ্যাপ স্বয়ংক্রিয়ভাবে লক হয়েছে।');
-    location.reload();
-  },AUTO_LOCK_INTERVAL);
-}
-document.addEventListener('click',startAutoLock);
-
-/* ===========================
-   Events
-   =========================== */
-unlockBtn.addEventListener('click',unlockApp);
-pwInput.addEventListener('keydown',e=>{if(e.key==='Enter') unlockApp();});
-resetAttemptsBtn.addEventListener('click',()=>{ attempts=0; saveAttempts(attempts); lockInfo.style.display='none'; });
-
-chaptersList.addEventListener('change',e=>{
-  if(e.target.tagName==='INPUT' && e.target.type==='checkbox'){
-    const chId=parseInt(e.target.closest('.chapter').querySelector('button')?.dataset.id);
-    if(chId){ let prog=loadProgress(); prog[chId]=e.target.checked; saveProgress(prog); updateProgress(); }
-  }
-});
-chaptersList.addEventListener('click',e=>{
-  if(e.target.tagName==='BUTTON'){
-    const chId=parseInt(e.target.dataset.id);
-    if(chId && chapters[chId-1].link) openModal(chapters[chId-1].link);
-  }
-});
-
-/* ===========================
-   Modal
-   =========================== */
-function openModal(link){ modalLinks.innerHTML=`<a href="${link}" target="_blank" class="link">পিডিএফ খুলুন</a>`; modalBackdrop.classList.add('show'); modalBackdrop.setAttribute('aria-hidden','false'); }
-closeModal.addEventListener('click',()=>{ modalBackdrop.classList.remove('show'); modalBackdrop.setAttribute('aria-hidden','true'); });
-
-/* ===========================
-   Notes
-   =========================== */
-noteText.value=loadNote();
-saveNoteBtn.addEventListener('click',()=>{
-  saveNote(noteText.value);
-  noteSaved.style.display='block';
-  setTimeout(()=>noteSaved.style.display='none',1800);
-});
-clearNoteBtn.addEventListener('click',()=>{
-  noteText.value=''; saveNote(''); noteSaved.style.display='none';
-});
-
-/* ===========================
-   Audio Player
-   =========================== */
-const audioInput=document.getElementById('audioFile');
-const player=document.getElementById('player');
-const playPauseAudio=document.getElementById('playPauseAudio');
-const fileNameEl=document.getElementById('fileName');
-let isPlaying=false;
-
-audioInput.addEventListener('change',()=>{
-  const file=audioInput.files[0];
-  if(file){
-    const url=URL.createObjectURL(file);
-    player.src=url;
-    player.style.display='block';
-    playPauseAudio.disabled=false;
-    fileNameEl.textContent=file.name;
-    isPlaying=false; playPauseAudio.textContent='প্লে';
-  }
-});
-playPauseAudio.addEventListener('click',()=>{
-  if(isPlaying){ player.pause(); playPauseAudio.textContent='প্লে'; isPlaying=false; }
-  else{ player.play(); playPauseAudio.textContent='পজ'; isPlaying=true; }
-});
-
-/* ===========================
-   Pomodoro Timer
-   =========================== */
-let timerInterval=null, timerSec=25*60, isBreak=false;
-const timeDisplay=document.getElementById('timeDisplay');
-const timerState=document.getElementById('timerState');
-const startTimer=document.getElementById('startTimer');
-const pauseTimer=document.getElementById('pauseTimer');
-const resetTimer=document.getElementById('resetTimer');
-
-function updateTimerDisplay(){
-  const m=Math.floor(timerSec/60).toString().padStart(2,'0');
-  const s=(timerSec%60).toString().padStart(2,'0');
-  timeDisplay.textContent=`${m}:${s}`;
-  timerState.textContent=isBreak?'বিরতি':'কাজ চলছে';
-}
-
-function startPomodoro(){
-  if(timerInterval) return;
-  timerInterval=setInterval(()=>{
+document.getElementById('startTimer').onclick = () => {
+  if (timerInterval) return;
+  timerState.textContent = 'চলছে';
+  timerInterval = setInterval(() => {
     timerSec--;
-    updateTimerDisplay();
-    if(timerSec<=0){ clearInterval(timerInterval); timerInterval=null; isBreak=!isBreak; timerSec=isBreak?5*60:25*60; alert(isBreak?'বিরতি শুরু':'কাজ শুরু'); updateTimerDisplay(); startPomodoro(); }
-  },1000);
+    let m = Math.floor(timerSec/60).toString().padStart(2,'0');
+    let s = (timerSec%60).toString().padStart(2,'0');
+    timeDisplay.textContent = `${m}:${s}`;
+    
+    if(timerSec <= 0) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      sendNotification("সময় শেষ!", "৫ মিনিটের বিরতি নাও।");
+      alert('স্টাডি সেশন সম্পন্ন!');
+      timerState.textContent = 'সম্পন্ন';
+    }
+  }, 1000);
+};
+document.getElementById('pauseTimer').onclick = () => { clearInterval(timerInterval); timerInterval = null; timerState.textContent = 'পজড'; };
+document.getElementById('resetTimer').onclick = () => { clearInterval(timerInterval); timerInterval = null; timerSec = customMin.value * 60; timeDisplay.textContent = `${customMin.value.toString().padStart(2,'0')}:00`; timerState.textContent = 'প্রস্তুত'; };
+
+// নোটপ্যাড
+const noteText = document.getElementById('noteText');
+if(noteText) {
+  noteText.value = localStorage.getItem('chem_note') || '';
+  document.getElementById('saveNote').onclick = () => { localStorage.setItem('chem_note', noteText.value); alert('সংরक्षित হয়েছে!'); };
+  document.getElementById('clearNote').onclick = () => { if(confirm('মুছবেন?')) { noteText.value = ''; localStorage.removeItem('chem_note'); } };
 }
-function pausePomodoro(){ clearInterval(timerInterval); timerInterval=null; }
-function resetPomodoro(){ clearInterval(timerInterval); timerInterval=null; isBreak=false; timerSec=25*60; updateTimerDisplay(); }
-
-startTimer.addEventListener('click',startPomodoro);
-pauseTimer.addEventListener('click',pausePomodoro);
-resetTimer.addEventListener('click',resetPomodoro);
-
-/* ===========================
-   Init
-   =========================== */
-if(isUnlocked()) showChapters();
 </script>
 </body>
 </html>
-
