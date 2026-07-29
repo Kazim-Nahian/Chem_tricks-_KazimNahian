@@ -3,125 +3,286 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>রসায়ন ড্যাশবোর্ড – মেহেদী স্যার এক্সক্লুসিভ</title>
+<title>মেহেদী স্যার কেমিস্ট্রি ল্যাব – Premium Edition</title>
 <meta name="theme-color" content="#030712">
+
+<!-- Fonts & Icons -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 
 <!-- Supabase JS Client -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root {
-  --accent: #3ea0ff;
-  --accent-2: #236fbf;
-  --muted: #94a3b8;
-  --card: rgba(15, 23, 42, 0.45);
-  --text: #f8fafc;
-  --border: rgba(255, 255, 255, 0.08);
-  --danger: #ef4444;
-  --success: #10b981;
-  --warning: #f59e0b;
-  --radius: 16px;
-  --gap: 14px;
-  font-family: "Noto Sans Bengali", "Segoe UI", Roboto, system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
+  --primary-glow: #00f2fe;
+  --accent: #3b82f6;
+  --accent-gradient: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+  --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --danger-gradient: linear-gradient(135deg, #f43f5e 0%, #be123c 100%);
+  --warning-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  
+  --bg-dark: #030712;
+  --card-bg: rgba(17, 24, 39, 0.65);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --glass-glow: rgba(59, 130, 246, 0.15);
+  
+  --text-main: #f9fafb;
+  --text-muted: #9ca3af;
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+  
+  font-family: 'Hind Siliguri', 'Plus Jakarta Sans', sans-serif;
 }
 
 [data-theme="light"] {
-  --accent: #1e64d2;
-  --accent-2: #114194;
-  --muted: #64748b;
-  --card: rgba(255, 255, 255, 0.55);
-  --text: #0f172a;
-  --border: rgba(34, 100, 180, 0.15);
+  --bg-dark: #f0f4f9;
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --card-border: rgba(0, 0, 0, 0.08);
+  --glass-glow: rgba(59, 130, 246, 0.08);
+  --text-main: #0f172a;
+  --text-muted: #64748b;
 }
 
-* { 
-  box-sizing: border-box; 
-  padding: 0; 
-  margin: 0; 
-  -webkit-tap-highlight-color: transparent; 
-  transition: background 0.4s ease, border-color 0.4s ease, color 0.3s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-html, body { min-height: 100vh; color: var(--text); overflow-x: hidden; width: 100%; background: transparent; }
+body {
+  min-height: 100vh;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  overflow-x: hidden;
+  display: flex;
+  justify-content: center;
+}
 
+/* Dynamic Glowing Canvas Background */
 #bg-canvas {
   position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
-  background: radial-gradient(circle at 50% 50%, #0a0f1d 0%, #02040a 100%);
-}
-[data-theme="light"] #bg-canvas {
-  background: radial-gradient(circle at 50% 50%, #f4f9ff 0%, #e0eefe 100%);
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  z-index: -2;
 }
 
-.wrapper { display: flex; justify-content: center; padding: 16px 12px; width: 100%; }
-.app { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: var(--gap); z-index: 1; }
+.wrapper {
+  width: 100%;
+  max-width: 480px;
+  padding: 16px 12px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
+/* Glassmorphism Card Style */
 .card {
-  background: var(--card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
-  animation: cardFadeIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: 0 12px 40px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+  animation: floatIn 0.6s ease-out;
 }
 
-@keyframes cardFadeIn {
-  0% { opacity: 0; transform: translateY(15px); }
-  100% { opacity: 1; transform: translateY(0); }
+@keyframes floatIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
+/* Header UI */
 .header {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.7), rgba(2, 6, 23, 0.7));
-  color: white; border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(59, 130, 246, 0.2);
+}
+.header::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle, var(--glass-glow) 0%, transparent 70%);
+  pointer-events: none;
 }
 
-.header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-.header h1 { font-size: 20px; font-weight: 800; background: linear-gradient(90deg, #fff, #93c5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.owner-tag { font-size: 13px; color: #3ea0ff; font-weight: bold; }
-.creator-badge { font-size: 11px; background: rgba(62, 160, 255, 0.15); border: 1px solid rgba(62, 160, 255, 0.3); padding: 4px 12px; border-radius: 20px; color: #93c5fd; }
-
-.btn {
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  color: #fff; border: none; padding: 12px 20px; border-radius: 12px;
-  font-weight: 700; font-size: 14px; cursor: pointer; text-align: center; text-decoration: none; display: inline-block;
-  box-shadow: 0 4px 14px rgba(62, 160, 255, 0.3); width: 100%;
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
-.btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(62, 160, 255, 0.4); }
-.btn.danger { background: linear-gradient(135deg, #ef4444, #991b1b); box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3); }
-.btn.warning { background: linear-gradient(135deg, #f59e0b, #b45309); box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3); }
-.btn.ghost { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
+
+.brand-title {
+  font-size: 22px;
+  font-weight: 700;
+  background: linear-gradient(90deg, #ffffff, #93c5fd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.2;
+}
+.brand-sub {
+  font-size: 13px;
+  color: var(--primary-glow);
+  font-weight: 600;
+  margin-top: 4px;
+}
 
 .theme-toggle {
-  background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);
-  color: white; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--card-border);
+  color: var(--text-main);
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.theme-toggle:active { transform: scale(0.9); }
+
+.dev-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  background: rgba(0, 242, 254, 0.08);
+  border: 1px solid rgba(0, 242, 254, 0.2);
+  padding: 4px 12px;
+  border-radius: 30px;
+  color: var(--primary-glow);
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
+/* Buttons */
+.btn {
+  width: 100%;
+  background: var(--accent-gradient);
+  color: #ffffff;
+  border: none;
+  padding: 14px 20px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 8px 20px -4px rgba(0, 114, 255, 0.4);
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 12px 25px -4px rgba(0, 114, 255, 0.6); }
+.btn:active { transform: scale(0.98); }
+
+.btn.danger { background: var(--danger-gradient); box-shadow: 0 8px 20px -4px rgba(244, 63, 94, 0.4); }
+.btn.warning { background: var(--warning-gradient); box-shadow: 0 8px 20px -4px rgba(245, 158, 11, 0.4); }
+.btn.ghost {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--card-border);
+  color: var(--text-main);
+  box-shadow: none;
+}
+.btn.ghost:hover { background: rgba(255, 255, 255, 0.1); }
+
+/* Form Controls */
+input[type="text"], input[type="password"], select, textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--card-border);
+  outline: none;
+  background: rgba(15, 23, 42, 0.5);
+  color: var(--text-main);
+  font-size: 14px;
+  margin-bottom: 12px;
+  font-family: inherit;
+}
+[data-theme="light"] input, [data-theme="light"] select, [data-theme="light"] textarea {
+  background: rgba(255, 255, 255, 0.8);
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+  border: 1px solid var(--card-border);
+}
+.tab-btn {
+  flex: 1;
+  padding: 10px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13.5px;
+}
+.tab-btn.active {
+  background: var(--accent-gradient);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 114, 255, 0.3);
+}
+
+/* Chapter Items */
 .chapter {
-  display: flex; justify-content: space-between; align-items: center; gap: 8px;
-  padding: 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--card-border);
+  margin-top: 10px;
 }
-.chapter-title { font-size: 13.5px; font-weight: 600; max-width: 70%; line-height: 1.4; }
+.chapter:hover { background: rgba(255, 255, 255, 0.05); }
+.chapter-title { font-size: 14px; font-weight: 600; line-height: 1.4; max-width: 68%; }
 
-input[type="text"], input[type="password"], input[type="number"], textarea {
-  width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border);
-  outline: none; background: rgba(30, 41, 59, 0.4); color: var(--text); font-size: 14px; margin-bottom: 10px;
+/* Progress Bar */
+.analytics-chart {
+  height: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  overflow: hidden;
+  margin-top: 10px;
+  border: 1px solid var(--card-border);
+}
+.chart-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00f2fe, #4facfe);
+  width: 0%;
+  border-radius: 20px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.analytics-chart { height: 14px; background: rgba(255,255,255,0.08); border-radius: 7px; overflow: hidden; margin-top: 8px; }
-.chart-fill { height: 100%; background: linear-gradient(90deg, #10b981, #34d399); width: 0%; transition: width 0.8s ease; }
-
-.tabs { display: flex; gap: 8px; margin-bottom: 14px; }
-.tab-btn { flex: 1; padding: 8px; background: transparent; border: 1px solid var(--border); color: var(--text); border-radius: 8px; cursor: pointer; font-weight: bold; }
-.tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
-
+/* Cards List */
 .student-card, .doubt-card {
-  background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-bottom: 10px;
 }
 
-footer { text-align: center; color: var(--muted); font-size: 11.5px; padding: 16px 0; }
+footer {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 20px 0;
+  line-height: 1.6;
+}
 </style>
 </head>
 <body>
@@ -129,176 +290,226 @@ footer { text-align: center; color: var(--muted); font-size: 11.5px; padding: 16
 <canvas id="bg-canvas"></canvas>
 
 <div class="wrapper">
-  <div class="app">
 
-    <!-- Header -->
-    <div class="header card">
-      <div class="header-top">
-        <div>
-          <h1>মেহেদী স্যার রসায়ন নোট</h1>
-          <div class="owner-tag">Director: জনাব মোঃ মেহেদী হাসান</div>
-        </div>
-        <button class="theme-toggle" id="themeBtn">☀️</button>
+  <!-- Header Card -->
+  <div class="card header">
+    <div class="header-top">
+      <div>
+        <div class="brand-title">মেহেদী স্যার রসায়ন নোট</div>
+        <div class="brand-sub">Director: জনাব মোঃ মেহেদী হাসান</div>
       </div>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-        <div class="creator-badge">🚀 Dev: Kazim Nahian</div>
-        <button class="btn ghost" id="btnAdminAccess" style="width:auto; padding:4px 10px; font-size:11px;">🛠️ এডমিন প্যানেল</button>
-      </div>
+      <button class="theme-toggle" id="themeBtn">☀️</button>
     </div>
-
-    <!-- Notice Banner -->
-    <div class="card" id="noticeCard" style="display:none; border-color:#3ea0ff; background:rgba(62, 160, 255, 0.1);">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <strong style="color:var(--accent); font-size:13px;">📢 গুরুত্বপূর্ণ নোটিশ:</strong>
-      </div>
-      <div id="noticeContent" style="font-size:13.5px; margin-top:4px; line-height:1.4;"></div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
+      <div class="dev-badge">⚡ Dev: Kazim Nahian</div>
+      <button class="btn ghost" id="btnAdminAccess" style="width:auto; padding:6px 14px; font-size:12px;">🛠️ এডমিন প্যানেল</button>
     </div>
-
-    <!-- Auth Card -->
-    <div class="card" id="authCard">
-      <div class="tabs">
-        <button class="tab-btn active" id="tabSignin">লগইন (Signin)</button>
-        <button class="tab-btn" id="tabSignup">রেজিস্ট্রেশন (Signup)</button>
-      </div>
-
-      <!-- Signin Form -->
-      <div id="signinForm">
-        <input type="text" id="loginName" placeholder="তোমার নাম (Name)">
-        <input type="password" id="loginPw" placeholder="পাসওয়ার্ড (Password)">
-        <button class="btn" id="btnSignin">লগইন করো 🚀</button>
-      </div>
-
-      <!-- Signup Form -->
-      <div id="signupForm" style="display:none;">
-        <input type="text" id="regName" placeholder="পূর্ণ নাম (Name)">
-        <input type="text" id="regClass" placeholder="শ্রেণী (e.g. 10)">
-        <input type="text" id="regSection" placeholder="শাখা / বিভাগ (e.g. Science)">
-        <input type="password" id="regPw" placeholder="পাসওয়ার্ড তৈরি করো">
-        <button class="btn" id="btnSignup">অ্যাকেউন্ট তৈরি করো ✨</button>
-      </div>
-    </div>
-
-    <!-- Admin Panel -->
-    <div class="card" id="adminCard" style="display:none; border-color:#f59e0b;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <strong style="color:#f59e0b; font-size:16px;">🛠️ টিচার/এডমিন কন্ট্রোল প্যানেল</strong>
-        <button class="btn ghost" id="btnCloseAdmin" style="width:auto; padding:4px 8px; font-size:11px;">বন্ধ করো</button>
-      </div>
-
-      <!-- Admin Auth Lock -->
-      <div id="adminLock">
-        <input type="password" id="adminPw" placeholder="এডমিন সিকিউরিটি পিন লিখুন...">
-        <button class="btn" id="btnUnlockAdmin">আনলক এডমিন 🔓</button>
-      </div>
-
-      <!-- Admin Dashboard Content -->
-      <div id="adminContent" style="display:none;">
-        
-        <!-- Notice Management -->
-        <div style="margin-bottom:16px; background:rgba(245, 158, 11, 0.1); padding:10px; border-radius:8px;">
-          <strong style="font-size:13px; color:#f59e0b;">📢 নোটিশ পোস্ট ও ডিলিট:</strong>
-          <textarea id="adminNoticeInput" rows="2" placeholder="নতুন কোনো ঘোষণা থাকলে এখানে লিখুন..." style="margin-top:6px;"></textarea>
-          <div style="display:flex; gap:8px;">
-            <button class="btn" id="btnPublishNotice" style="padding:8px; font-size:12px;">পাবলিশ 🚀</button>
-            <button class="btn danger" id="btnDeleteNotice" style="padding:8px; font-size:12px;">নোটিশ ডিলিট 🗑️</button>
-          </div>
-        </div>
-
-        <!-- Student Doubts Management -->
-        <div style="margin-bottom:16px; background:rgba(62, 160, 255, 0.1); padding:10px; border-radius:8px;">
-          <strong style="font-size:13px; color:var(--accent);">📩 স্টুডেন্টদের প্রশ্নসমূহ</strong>
-          <div id="adminDoubtsList" style="max-height: 250px; overflow-y:auto; margin-top:8px;">লোডিং...</div>
-        </div>
-
-        <!-- Student Progress Management -->
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <strong style="font-size:14px;">👥 রেজিস্টার্ড স্টুডেন্ট (<span id="totalStudentsCount">0</span>)</strong>
-          <button class="btn ghost" id="btnRefreshAdmin" style="width:auto; padding:4px 8px; font-size:10px;">রিফ্রেশ 🔄</button>
-        </div>
-        <div id="adminStudentList" style="max-height: 250px; overflow-y:auto;">লোডিং...</div>
-      </div>
-    </div>
-
-    <!-- Main Dashboard -->
-    <div id="chaptersArea" style="display:none">
-      
-      <!-- User Info Badge -->
-      <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-        <div>
-          <strong id="userProfileName" style="font-size:15px; color:var(--accent);">—</strong>
-          <div id="userProfileMeta" style="font-size:12px; opacity:0.8;">—</div>
-        </div>
-        <button class="btn ghost" id="btnLogout" style="width:auto; padding:6px 12px; font-size:11px;">লগআউট</button>
-      </div>
-
-      <!-- Progress Analytics -->
-      <div class="card">
-        <strong style="font-size:14px;">📈 স্টাডি প্রোগ্রেস ট্র্যাকার</strong>
-        <div class="analytics-chart"><div class="chart-fill" id="chartBar"></div></div>
-        <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:12px; font-weight:bold;">
-          <span id="progressText">প্রগতি: 0%</span>
-          <span id="chartText">সম্পন্ন: ০/১২</span>
-        </div>
-      </div>
-
-      <!-- Chapters List -->
-      <div class="card">
-        <strong style="font-size:14px;">📚 অধ্যায় তালিকা</strong>
-        <div id="chaptersList"></div>
-      </div>
-
-      <!-- Ask Teacher / Student Doubt Solver -->
-      <div class="card" style="border-color: var(--accent);">
-        <strong style="font-size:14px; color:var(--accent);">❓ স্যারকে প্রশ্ন করো (Doubt Solver)</strong>
-        <p style="font-size:11.5px; opacity:0.8; margin-top:2px; margin-bottom:8px;">কোথাও বুঝতে সমস্যা হলে লিখে, ছবি দিয়ে বা ভয়েস মেসেজ পাঠাও:</p>
-        
-        <textarea id="doubtText" rows="2" placeholder="তোমার প্রশ্নটি লেখো..."></textarea>
-        
-        <!-- Pic Attachment -->
-        <div style="margin-bottom:8px;">
-          <label style="font-size:11px; opacity:0.8;">📸 ছবি যুক্ত করো (ঐচ্ছিক):</label>
-          <input type="file" id="doubtImg" accept="image/*" style="font-size:11px; margin-top:2px;">
-        </div>
-
-        <!-- Voice Recorder -->
-        <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
-          <button class="btn warning" id="btnRecordVoice" style="padding:6px 10px; font-size:11px; width:auto;">🎙️ ভয়েস রেকর্ড করো</button>
-          <span id="recStatus" style="font-size:11px; color:var(--warning);"></span>
-        </div>
-
-        <button class="btn" id="btnSubmitDoubt">স্যারকে পাঠাও 🚀</button>
-
-        <div style="margin-top:14px;">
-          <strong style="font-size:12.5px;">📋 তোমার পূর্বের প্রশ্ন ও উত্তর:</strong>
-          <div id="myDoubtsList" style="margin-top:6px; max-height:180px; overflow-y:auto;">লোডিং...</div>
-        </div>
-      </div>
-
-      <!-- Leaderboard -->
-      <div class="card">
-        <strong style="font-size:14px;">🏆 ব্যাচ লিডারবোর্ড (Top Progress)</strong>
-        <div id="leaderboardList" style="margin-top:10px;">লোডিং...</div>
-      </div>
-
-      <!-- Cloud Notepad -->
-      <div class="card">
-        <strong style="font-size:14px;">📝 ক্লাউড নোটপ্যাড</strong>
-        <textarea id="noteText" rows="3" placeholder="রসায়ন সংক্ষিপ্ত নোট লেখো..." style="margin-top:8px;"></textarea>
-        <button class="btn" id="saveNote">নোট সেভ করো ☁️</button>
-      </div>
-
-    </div>
-
-    <footer>
-      মেহেদী হাসান স্যার কর্তৃক স্বত্বাধিকারী<br>
-      Designed & Developed with 💙 by Kazim Nahian
-    </footer>
   </div>
+
+  <!-- Notice Banner -->
+  <div class="card" id="noticeCard" style="display:none; border-color: rgba(59, 130, 246, 0.4); background: rgba(59, 130, 246, 0.08);">
+    <strong style="color:var(--primary-glow); font-size:13px;">📢 নোটিশ:</strong>
+    <div id="noticeContent" style="font-size:14px; margin-top:4px; line-height:1.5;"></div>
+  </div>
+
+  <!-- Auth Card -->
+  <div class="card" id="authCard">
+    <div class="tabs">
+      <button class="tab-btn active" id="tabSignin">লগইন (Signin)</button>
+      <button class="tab-btn" id="tabSignup">রেজিস্ট্রেশন (Signup)</button>
+    </div>
+
+    <!-- Signin Form -->
+    <div id="signinForm">
+      <input type="text" id="loginName" placeholder="তোমার নাম (Name)">
+      <input type="password" id="loginPw" placeholder="পাসওয়ার্ড (Password)">
+      <button class="btn" id="btnSignin">লগইন করো 🚀</button>
+    </div>
+
+    <!-- Signup Form -->
+    <div id="signupForm" style="display:none;">
+      <input type="text" id="regName" placeholder="পূর্ণ নাম (Name)">
+      
+      <select id="regClass" onchange="updateSectionOptions('regClass', 'regSection')">
+        <option value="">শ্রেণী নির্বাচন করো...</option>
+        <option value="Class 6">Class 6</option>
+        <option value="Class 7">Class 7</option>
+        <option value="Class 8">Class 8</option>
+        <option value="Class 9">Class 9</option>
+        <option value="Class 10">Class 10</option>
+      </select>
+
+      <select id="regSection">
+        <option value="">আগে শ্রেণী নির্বাচন করো</option>
+      </select>
+
+      <select id="regGender">
+        <option value="">লিঙ্গ (Gender) নির্বাচন করো...</option>
+        <option value="ছাত্র (Male)">ছাত্র (Male)</option>
+        <option value="ছাত্রী (Female)">ছাত্রী (Female)</option>
+      </select>
+
+      <input type="password" id="regPw" placeholder="পাসওয়ার্ড তৈরি করো">
+      <button class="btn" id="btnSignup">অ্যাকেউন্ট তৈরি করো ✨</button>
+    </div>
+  </div>
+
+  <!-- Admin Panel -->
+  <div class="card" id="adminCard" style="display:none; border-color: rgba(245, 158, 11, 0.3);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+      <strong style="color:#f59e0b; font-size:16px;">🛠️ টিচার / এডমিন কন্ট্রোল</strong>
+      <button class="btn ghost" id="btnCloseAdmin" style="width:auto; padding:4px 10px; font-size:11px;">বন্ধ করো</button>
+    </div>
+
+    <div id="adminLock">
+      <input type="password" id="adminPw" placeholder="এডমিন পিন লিখুন...">
+      <button class="btn" id="btnUnlockAdmin">আনলক করুন 🔓</button>
+    </div>
+
+    <div id="adminContent" style="display:none;">
+      
+      <!-- Batch Time Management -->
+      <div style="margin-bottom:16px; background:rgba(16, 185, 129, 0.08); padding:14px; border-radius:var(--radius-md); border:1px solid rgba(16,185,129,0.2);">
+        <strong style="font-size:14px; color:#34d399;">⏰ ব্যাচ টাইম সেটআপ:</strong>
+        
+        <select id="adminClass" style="margin-top:10px;" onchange="updateSectionOptions('adminClass', 'adminSection')">
+          <option value="">শ্রেণী সিলেক্ট করুন...</option>
+          <option value="Class 6">Class 6</option>
+          <option value="Class 7">Class 7</option>
+          <option value="Class 8">Class 8</option>
+          <option value="Class 9">Class 9</option>
+          <option value="Class 10">Class 10</option>
+        </select>
+
+        <select id="adminSection">
+          <option value="">আগে শ্রেণী সিলেক্ট করুন</option>
+        </select>
+
+        <select id="adminGender">
+          <option value="">লিঙ্গ সিলেক্ট করুন...</option>
+          <option value="ছাত্র (Male)">ছাত্র (Male)</option>
+          <option value="ছাত্রী (Female)">ছাত্রী (Female)</option>
+        </select>
+
+        <input type="text" id="adminBatchTime" placeholder="সময় (যেমন: বিকাল ৩:০০ টা)">
+        <button class="btn" id="btnSaveBatchTime" style="padding:10px; font-size:13px; background:var(--success-gradient);">টাইম সেভ করো 💾</button>
+
+        <div style="margin-top:12px;">
+          <strong style="font-size:12px; color:#34d399;">বর্তমান সেট করা সময়সূচী:</strong>
+          <div id="adminBatchList" style="max-height: 120px; overflow-y:auto; margin-top:6px;">লোডিং...</div>
+        </div>
+      </div>
+
+      <!-- Notice Posting -->
+      <div style="margin-bottom:16px; background:rgba(245, 158, 11, 0.08); padding:12px; border-radius:var(--radius-md);">
+        <strong style="font-size:13px; color:#f59e0b;">📢 নোটিশ ম্যানেজমেন্ট:</strong>
+        <textarea id="adminNoticeInput" rows="2" placeholder="নোটিশ পোস্ট করুন..." style="margin-top:8px;"></textarea>
+        <div style="display:flex; gap:8px;">
+          <button class="btn" id="btnPublishNotice" style="padding:8px; font-size:12px;">পাবলিশ 🚀</button>
+          <button class="btn danger" id="btnDeleteNotice" style="padding:8px; font-size:12px;">ডিলিট 🗑️</button>
+        </div>
+      </div>
+
+      <!-- Student Doubts List -->
+      <div style="margin-bottom:16px; background:rgba(59, 130, 246, 0.08); padding:12px; border-radius:var(--radius-md);">
+        <strong style="font-size:13px; color:var(--primary-glow);">📩 স্টুডেন্টদের প্রশ্নসমূহ</strong>
+        <div id="adminDoubtsList" style="max-height: 200px; overflow-y:auto; margin-top:8px;">লোডিং...</div>
+      </div>
+
+      <!-- Registered Students List -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <strong style="font-size:14px;">👥 রেজিস্টার্ড স্টুডেন্ট (<span id="totalStudentsCount">0</span>)</strong>
+        <button class="btn ghost" id="btnRefreshAdmin" style="width:auto; padding:4px 8px; font-size:11px;">রিফ্রেশ 🔄</button>
+      </div>
+      <div id="adminStudentList" style="max-height: 200px; overflow-y:auto;">লোডিং...</div>
+    </div>
+  </div>
+
+  <!-- Dashboard Main Area -->
+  <div id="chaptersArea" style="display:none">
+    
+    <!-- User Card -->
+    <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <strong id="userProfileName" style="font-size:16px; color:var(--primary-glow);">—</strong>
+        <div id="userProfileMeta" style="font-size:12px; color:var(--text-muted); margin-top:2px;">—</div>
+      </div>
+      <button class="btn ghost" id="btnLogout" style="width:auto; padding:6px 12px; font-size:11px;">লগআউট</button>
+    </div>
+
+    <!-- Batch Time Info -->
+    <div class="card" style="border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.05);">
+      <strong style="color:#34d399; font-size:13px;">⏰ তোমার প্রাইভেটের সময়সূচী:</strong>
+      <div id="myBatchTimeText" style="font-size:16px; font-weight:bold; margin-top:4px; color:#34d399;">
+        চেক করা হচ্ছে...
+      </div>
+    </div>
+
+    <!-- Progress Analytics -->
+    <div class="card">
+      <strong style="font-size:14px;">📈 স্টাডি প্রোগ্রেস ট্র্যাকার</strong>
+      <div class="analytics-chart"><div class="chart-fill" id="chartBar"></div></div>
+      <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:12px; font-weight:bold;">
+        <span id="progressText">প্রগতি: 0%</span>
+        <span id="chartText">সম্পন্ন: ০/১২</span>
+      </div>
+    </div>
+
+    <!-- Chapters List -->
+    <div class="card">
+      <strong style="font-size:15px;">📚 অধ্যায় তালিকা (নোট ও PDF)</strong>
+      <div id="chaptersList"></div>
+    </div>
+
+    <!-- Doubt Solver -->
+    <div class="card" style="border-color: rgba(59, 130, 246, 0.3);">
+      <strong style="font-size:15px; color:var(--primary-glow);">❓ স্যারকে প্রশ্ন করো (Doubt Solver)</strong>
+      <p style="font-size:12px; color:var(--text-muted); margin-top:2px; margin-bottom:10px;">লিখে, ছবি বা ভয়েস মেসেজ দিয়ে সমস্যা পাঠাও:</p>
+      
+      <textarea id="doubtText" rows="2" placeholder="তোমার প্রশ্নটি বিস্তারিত লেখো..."></textarea>
+      
+      <div style="margin-bottom:10px;">
+        <label style="font-size:11px; color:var(--text-muted);">📸 ছবি যুক্ত করো (যদি থাকে):</label>
+        <input type="file" id="doubtImg" accept="image/*" style="font-size:11px; margin-top:4px;">
+      </div>
+
+      <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px;">
+        <button class="btn warning" id="btnRecordVoice" style="padding:8px 12px; font-size:12px; width:auto;">🎙️ ভয়েস রেকর্ড করো</button>
+        <span id="recStatus" style="font-size:11px; color:#f59e0b;"></span>
+      </div>
+
+      <button class="btn" id="btnSubmitDoubt">স্যারকে পাঠাও 🚀</button>
+
+      <div style="margin-top:16px;">
+        <strong style="font-size:13px;">📋 তোমার পূর্বের প্রশ্ন ও উত্তর:</strong>
+        <div id="myDoubtsList" style="margin-top:8px; max-height:180px; overflow-y:auto;">লোডিং...</div>
+      </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="card">
+      <strong style="font-size:15px;">🏆 ব্যাচ লিডারবোর্ড (Top Progress)</strong>
+      <div id="leaderboardList" style="margin-top:10px;">লোডিং...</div>
+    </div>
+
+    <!-- Cloud Notepad -->
+    <div class="card">
+      <strong style="font-size:15px;">📝 ক্লাউড নোটপ্যাড</strong>
+      <textarea id="noteText" rows="3" placeholder="রসায়নের দরকারি সূত্র ও সংকেত লিখে রাখো..." style="margin-top:10px;"></textarea>
+      <button class="btn" id="saveNote">নোট সেভ করো ☁️</button>
+    </div>
+
+  </div>
+
+  <footer>
+    মেহেদী হাসান স্যার কর্তৃক স্বত্বাধিকারী<br>
+    Designed & Developed with 💙 by Kazim Nahian
+  </footer>
 </div>
 
 <script>
 // ==========================================
-// 1. SUPABASE CONFIG
+// 1. SUPABASE CONFIG & INIT
 // ==========================================
 const SUPABASE_URL = "https://siskzbrssxlyyvbgoqrd.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_GOBmTSvFzNWzAVpaxhtVdw_jgoixEmx";
@@ -312,8 +523,27 @@ let recordedAudioBase64 = null;
 let mediaRecorder = null;
 let audioChunks = [];
 
+function updateSectionOptions(classSelectId, sectionSelectId) {
+  const cls = document.getElementById(classSelectId).value;
+  const secSelect = document.getElementById(sectionSelectId);
+  secSelect.innerHTML = '';
+
+  if(!cls) {
+    secSelect.innerHTML = '<option value="">আগে শ্রেণী নির্বাচন করো</option>';
+    return;
+  }
+
+  if(cls === 'Class 6' || cls === 'Class 7' || cls === 'Class 8') {
+    const opts = ['জবা', 'গোলাপ', 'বেলি', 'শেউলি'];
+    opts.forEach(o => secSelect.innerHTML += `<option value="${o}">${o}</option>`);
+  } else if(cls === 'Class 9' || cls === 'Class 10') {
+    const opts = ['বিজ্ঞান (জবা)', 'বিজ্ঞান (গোলাপ)', 'মানবিক (Arts)', 'ব্যবসায় শিক্ষা (Commerce)'];
+    opts.forEach(o => secSelect.innerHTML += `<option value="${o}">${o}</option>`);
+  }
+}
+
 // ==========================================
-// 2. CANVAS ANIMATION
+// 2. GLOWING ANIMATED CANVAS BACKGROUND
 // ==========================================
 const canvas = document.getElementById('bg-canvas');
 const ctx = canvas.getContext('2d');
@@ -326,9 +556,9 @@ class Particle {
   constructor() {
     this.x = Math.random() * canvas.width;
     this.y = Math.random() * canvas.height;
-    this.radius = Math.random() * 3 + 1.5;
-    this.vx = (Math.random() - 0.5) * 1.0;
-    this.vy = (Math.random() - 0.5) * 1.0;
+    this.radius = Math.random() * 2 + 1;
+    this.vx = (Math.random() - 0.5) * 0.8;
+    this.vy = (Math.random() - 0.5) * 0.8;
   }
   update() {
     this.x += this.vx; this.y += this.vy;
@@ -337,10 +567,10 @@ class Particle {
   }
   draw() {
     ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(96, 165, 250, 0.6)'; ctx.fill();
+    ctx.fillStyle = 'rgba(0, 242, 254, 0.4)'; ctx.fill();
   }
 }
-function initParticles() { particles = []; for (let i = 0; i < 40; i++) particles.push(new Particle()); }
+function initParticles() { particles = []; for (let i = 0; i < 35; i++) particles.push(new Particle()); }
 initParticles();
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -396,9 +626,9 @@ async function loadAdminData() {
       item.style.alignItems = 'center';
       item.innerHTML = `
         <div>
-          <strong style="font-size:13px;">${st.name}</strong>
-          <div style="font-size:11px; opacity:0.7;">Class: ${st.class} | Sec: ${st.section}</div>
-          <div style="font-size:11px; color:var(--success); font-weight:bold;">প্রোগ্রেস: ${doneCount}/১২ (${pct}%)</div>
+          <strong style="font-size:13px;">${st.name} (${st.gender || 'N/A'})</strong>
+          <div style="font-size:11px; opacity:0.7;">${st.class} | ${st.section}</div>
+          <div style="font-size:11px; color:#34d399; font-weight:bold;">প্রোগ্রেস: ${doneCount}/১২ (${pct}%)</div>
         </div>
         <button class="btn danger" style="width:auto; padding:4px 8px; font-size:11px;" onclick="deleteStudent('${st.name}')">ডিলিট</button>
       `;
@@ -406,13 +636,65 @@ async function loadAdminData() {
     });
   }
 
+  loadAdminBatchTimes();
   loadAdminDoubts();
 }
 
 document.getElementById('btnRefreshAdmin').onclick = loadAdminData;
 
+// Batch Timing Logic & Delete Button
+document.getElementById('btnSaveBatchTime').onclick = async () => {
+  const cls = document.getElementById('adminClass').value;
+  const sec = document.getElementById('adminSection').value;
+  const gender = document.getElementById('adminGender').value;
+  const time = document.getElementById('adminBatchTime').value.trim();
+
+  if(!cls || !sec || !gender || !time) return alert('সকল ঘর নির্বাচন করুন!');
+
+  await db.from('batch_timings').upsert([{
+    class_name: cls,
+    section_name: sec,
+    gender: gender,
+    batch_time: time
+  }], { onConflict: 'class_name,section_name,gender' });
+
+  alert('টাইম সেভ হয়েছে!');
+  document.getElementById('adminBatchTime').value = '';
+  loadAdminBatchTimes();
+};
+
+async function loadAdminBatchTimes() {
+  const container = document.getElementById('adminBatchList');
+  container.innerHTML = 'লোড হচ্ছে...';
+
+  const { data } = await db.from('batch_timings').select('*');
+  if(!data || data.length === 0) {
+    container.innerHTML = '<div style="font-size:11px; opacity:0.7;">কোনো সময় সেট করা নেই।</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  data.forEach(b => {
+    container.innerHTML += `
+      <div style="font-size:11px; border-bottom:1px solid var(--card-border); padding:6px 0; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <b>${b.class_name}</b> (${b.section_name}) - ${b.gender}:
+          <span style="color:#34d399; font-weight:bold; margin-left:4px;">${b.batch_time}</span>
+        </div>
+        <button class="btn danger" style="width:auto; padding:2px 6px; font-size:10px;" onclick="deleteBatchTime('${b.id}')">🗑️ ডিলিট</button>
+      </div>`;
+  });
+}
+
+async function deleteBatchTime(id) {
+  if(confirm("সময়সূচীটি মুছে ফেলতে চান?")) {
+    await db.from('batch_timings').delete().eq('id', id);
+    loadAdminBatchTimes();
+  }
+}
+
 async function deleteStudent(name) {
-  if(confirm(`আপনি কি নিশ্চিত যে ${name}-এর অ্যাকাউন্ট মুছে ফেলতে চান?`)) {
+  if(confirm(`${name}-কে মুছে ফেলতে চান?`)) {
     await db.from('profiles').delete().eq('name', name);
     await db.from('student_data').delete().eq('student_name', name);
     alert('স্টুডেন্ট মুছে ফেলা হয়েছে!');
@@ -420,21 +702,21 @@ async function deleteStudent(name) {
   }
 }
 
-// Notice Delete Feature
+// Notice Logic
 document.getElementById('btnPublishNotice').onclick = async () => {
   const text = document.getElementById('adminNoticeInput').value.trim();
-  if(!text) return alert('নোটিশের লেখা লিখুন!');
+  if(!text) return alert('লেখা দিন!');
 
   await db.from('notices').insert([{ content: text }]);
-  alert('নোটিশ সফলভাবে পাবলিশ করা হয়েছে!');
+  alert('নোটিশ পাবলিশ করা হয়েছে!');
   document.getElementById('adminNoticeInput').value = '';
   checkNotices();
 };
 
 document.getElementById('btnDeleteNotice').onclick = async () => {
-  if(confirm("আপনি কি চলমান নোটিশটি ডিলিট করতে চান?")) {
+  if(confirm("নোটিশ ডিলিট করতে চান?")) {
     await db.from('notices').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    alert("নোটিশ ডিলিট করা হয়েছে!");
+    alert("ডিলিট করা হয়েছে!");
     checkNotices();
   }
 };
@@ -457,7 +739,7 @@ async function loadAdminDoubts() {
 
   const { data } = await db.from('doubts').select('*').order('created_at', { ascending: false });
   if(!data || data.length === 0) {
-    container.innerHTML = '<div style="font-size:12px; opacity:0.7;">কোনো প্রশ্ন পাওয়া যায়নি।</div>';
+    container.innerHTML = '<div style="font-size:11px; opacity:0.7;">কোনো প্রশ্ন পাওয়া যায়নি।</div>';
     return;
   }
 
@@ -466,13 +748,13 @@ async function loadAdminDoubts() {
     const card = document.createElement('div');
     card.className = 'doubt-card';
     card.innerHTML = `
-      <div style="font-size:12px; color:var(--accent); font-weight:bold;">👤 ${d.student_name}</div>
+      <div style="font-size:12px; color:var(--primary-glow); font-weight:bold;">👤 ${d.student_name}</div>
       ${d.text_content ? `<div style="font-size:12px; margin-top:4px;"><b>প্রশ্ন:</b> ${d.text_content}</div>` : ''}
       ${d.image_url ? `<img src="${d.image_url}" style="width:100%; max-height:120px; object-fit:contain; border-radius:6px; margin-top:6px;">` : ''}
       ${d.audio_url ? `<audio controls src="${d.audio_url}" style="width:100%; height:32px; margin-top:6px;"></audio>` : ''}
       
       <div style="margin-top:8px;">
-        <input type="text" id="reply_input_${d.id}" placeholder="উত্তর লিখুন..." value="${d.reply || ''}">
+        <input type="text" id="reply_input_${d.id}" placeholder="উত্তর দিন..." value="${d.reply || ''}">
         <div style="display:flex; gap:6px;">
           <button class="btn" style="padding:4px 8px; font-size:10px;" onclick="sendReply('${d.id}')">রিপ্লাই সেভ</button>
           <button class="btn danger" style="padding:4px 8px; font-size:10px;" onclick="deleteDoubt('${d.id}')">ডিলিট</button>
@@ -486,7 +768,8 @@ async function loadAdminDoubts() {
 async function sendReply(id) {
   const text = document.getElementById(`reply_input_${id}`).value.trim();
   await db.from('doubts').update({ reply: text }).eq('id', id);
-  alert('রিপ্লাই পাঠানো হয়েছে!');
+  alert('উত্তর পাঠানো হয়েছে!');
+  loadAdminDoubts();
 }
 
 async function deleteDoubt(id) {
@@ -509,16 +792,17 @@ tabSignup.onclick = () => { tabSignup.classList.add('active'); tabSignin.classLi
 
 document.getElementById('btnSignup').onclick = async () => {
   const name = document.getElementById('regName').value.trim();
-  const cls = document.getElementById('regClass').value.trim();
-  const sec = document.getElementById('regSection').value.trim();
+  const cls = document.getElementById('regClass').value;
+  const sec = document.getElementById('regSection').value;
+  const gender = document.getElementById('regGender').value;
   const pw = document.getElementById('regPw').value.trim();
 
-  if(!name || !cls || !sec || !pw) return alert('সকল তথ্য সঠিকভাবে পূরণ করো!');
+  if(!name || !cls || !sec || !gender || !pw) return alert('সকল তথ্য সঠিক দিন!');
 
   const { data: existing } = await db.from('profiles').select('name').eq('name', name).single();
   if(existing) return alert('এই নামে ইতিপূর্বে রেজিস্ট্রেশন করা হয়েছে!');
 
-  const { error } = await db.from('profiles').insert([{ name, class: cls, section: sec, password: pw }]);
+  const { error } = await db.from('profiles').insert([{ name, class: cls, section: sec, gender: gender, password: pw }]);
   if(error) return alert('অ্যাকাউন্ট খুলতে সমস্যা হয়েছে: ' + error.message);
 
   await db.from('student_data').insert([{ student_name: name, progress: {}, notes: '' }]);
@@ -574,7 +858,7 @@ btnRecordVoice.onclick = async () => {
         reader.onloadend = () => { recordedAudioBase64 = reader.result; };
       };
       mediaRecorder.start();
-      btnRecordVoice.textContent = "⏹️ রেকর্ড বন্ধ করো";
+      btnRecordVoice.textContent = "⏹️ রেকর্ড থামাও";
       recStatus.textContent = "রেকর্ডিং হচ্ছে...";
     } catch(err) {
       alert("মাইক্রোফোন পারমিশন প্রয়োজন!");
@@ -582,7 +866,7 @@ btnRecordVoice.onclick = async () => {
   } else {
     mediaRecorder.stop();
     btnRecordVoice.textContent = "🎙️ ভয়েস রেকর্ড করো";
-    recStatus.textContent = "রেকর্ড সম্পন্ন!";
+    recStatus.textContent = "রেকর্ড শেষ!";
   }
 };
 
@@ -592,7 +876,7 @@ document.getElementById('btnSubmitDoubt').onclick = async () => {
   let imgBase64 = null;
 
   if(!text && !imgInput.files[0] && !recordedAudioBase64) {
-    return alert('অনুগ্রহ করে প্রশ্ন লিখুন, ছবি দিন অথবা ভয়েস রেকর্ড করুন!');
+    return alert('প্রশ্ন লিখুন, ছবি দিন অথবা ভয়েস মেসেজ দিন!');
   }
 
   if(imgInput.files[0]) {
@@ -608,14 +892,16 @@ document.getElementById('btnSubmitDoubt').onclick = async () => {
 };
 
 async function uploadDoubt(text, img, audio) {
-  await db.from('doubts').insert([{
+  const { error } = await db.from('doubts').insert([{
     student_name: currentUser.name,
     text_content: text,
     image_url: img,
     audio_url: audio
   }]);
 
-  alert("তোমার প্রশ্নটি স্যারের কাছে পাঠানো হয়েছে! স্যার উত্তর দিলে এখানে দেখতে পাবে।");
+  if(error) return alert("সমস্যা হয়েছে: " + error.message);
+
+  alert("প্রশ্ন স্যারের কাছে পাঠানো হয়েছে!");
   document.getElementById('doubtText').value = '';
   document.getElementById('doubtImg').value = '';
   recordedAudioBase64 = null;
@@ -638,11 +924,11 @@ async function loadMyDoubts() {
     const card = document.createElement('div');
     card.className = 'doubt-card';
     card.innerHTML = `
-      ${d.text_content ? `<div style="font-size:12px;"><b>প্রশ্ন:</b> ${d.text_content}</div>` : ''}
+      ${d.text_content ? `<div style="font-size:12.5px;"><b>প্রশ্ন:</b> ${d.text_content}</div>` : ''}
       ${d.image_url ? `<img src="${d.image_url}" style="width:100%; max-height:100px; object-fit:contain; border-radius:6px; margin-top:4px;">` : ''}
       ${d.audio_url ? `<audio controls src="${d.audio_url}" style="width:100%; height:30px; margin-top:4px;"></audio>` : ''}
-      <div style="font-size:11.5px; color:var(--success); font-weight:bold; margin-top:6px; background:rgba(16,185,129,0.1); padding:6px; border-radius:6px;">
-        👨‍🏫 স্যারের উত্তর: ${d.reply ? d.reply : '<i>স্যার এখনো উত্তর দেননি...</i>'}
+      <div style="font-size:11.5px; color:#34d399; font-weight:bold; margin-top:6px; background:rgba(16,185,129,0.08); padding:8px; border-radius:6px;">
+        👨‍🏫 উত্তর: ${d.reply ? d.reply : '<i>স্যার এখনো উত্তর দেননি...</i>'}
       </div>
     `;
     container.appendChild(card);
@@ -672,7 +958,9 @@ async function loadDashboard() {
   document.getElementById('chaptersArea').style.display = 'block';
 
   document.getElementById('userProfileName').textContent = currentUser.name;
-  document.getElementById('userProfileMeta').textContent = `Class: ${currentUser.class} | Sec: ${currentUser.section}`;
+  document.getElementById('userProfileMeta').textContent = `${currentUser.class} | ${currentUser.section} | ${currentUser.gender}`;
+
+  fetchUserBatchTime();
 
   const { data } = await db.from('student_data').select('*').eq('student_name', currentUser.name).single();
   if(data) {
@@ -685,6 +973,26 @@ async function loadDashboard() {
   loadMyDoubts();
 }
 
+async function fetchUserBatchTime() {
+  const display = document.getElementById('myBatchTimeText');
+  display.textContent = 'টাইম চেক হচ্ছে...';
+
+  const { data } = await db.from('batch_timings')
+    .select('batch_time')
+    .eq('class_name', currentUser.class)
+    .eq('section_name', currentUser.section)
+    .eq('gender', currentUser.gender)
+    .single();
+
+  if(data && data.batch_time) {
+    display.textContent = `📅 ${data.batch_time}`;
+  } else {
+    display.textContent = 'নির্দিষ্ট কোনো সময় এখনো সেট করা হয়নি।';
+    display.style.fontSize = '12px';
+    display.style.color = 'var(--text-muted)';
+  }
+}
+
 function renderChapters(){
   const chaptersList = document.getElementById('chaptersList');
   chaptersList.innerHTML='';
@@ -693,9 +1001,9 @@ function renderChapters(){
     div.className = 'chapter';
     div.innerHTML = `
       <div class="chapter-title">${ch.title}</div>
-      <div style="display:flex; gap:8px; align-items:center;">
+      <div style="display:flex; gap:10px; align-items:center;">
         <button class="btn" style="padding:6px 12px; font-size:11px; width:auto;" onclick="window.open('${ch.link}','_blank')">PDF</button>
-        <input type="checkbox" style="width:18px; height:18px; cursor:pointer;" ${currentProgress[ch.id]?'checked':''} onchange="saveProg(${ch.id}, this.checked)">
+        <input type="checkbox" style="width:18px; height:18px; cursor:pointer; accent-color: var(--accent);" ${currentProgress[ch.id]?'checked':''} onchange="saveProg(${ch.id}, this.checked)">
       </div>`;
     chaptersList.appendChild(div);
   });
@@ -732,9 +1040,9 @@ async function fetchLeaderboard() {
   container.innerHTML = '';
   sorted.slice(0, 5).forEach((st, idx) => {
     container.innerHTML += `
-      <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border); font-size:13px;">
+      <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--card-border); font-size:13px;">
         <span><b>#${idx+1}</b> ${st.name}</span>
-        <span style="color:var(--accent); font-weight:bold;">${st.score}/১২ টি সম্পন্ন</span>
+        <span style="color:var(--primary-glow); font-weight:bold;">${st.score}/১২ টি সম্পন্ন</span>
       </div>`;
   });
 }
