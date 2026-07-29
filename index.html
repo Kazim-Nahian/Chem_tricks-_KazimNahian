@@ -391,11 +391,11 @@ footer {
           <option value="ছাত্রী (Female)">ছাত্রী (Female)</option>
         </select>
 
-        <input type="text" id="adminBatchTime" placeholder="সময় (যেমন: বিকাল ৩:০০ টা)">
+        <input type="text" id="adminBatchTime" placeholder="সময় (যেমন: বিকাল ৩:০০ টা)">
         <button class="btn" id="btnSaveBatchTime" style="padding:10px; font-size:13px; background:var(--success-gradient);">টাইম সেভ করো 💾</button>
 
         <div style="margin-top:12px;">
-          <strong style="font-size:12px; color:#34d399;">বর্তমান সেট করা সময়সূচী:</strong>
+          <strong style="font-size:12px; color:#34d399;">বর্তমান সেট করা সময়সূচী:</strong>
           <div id="adminBatchList" style="max-height: 120px; overflow-y:auto; margin-top:6px;">লোডিং...</div>
         </div>
       </div>
@@ -413,7 +413,7 @@ footer {
       <!-- Student Doubts List -->
       <div style="margin-bottom:16px; background:rgba(59, 130, 246, 0.08); padding:12px; border-radius:var(--radius-md);">
         <strong style="font-size:13px; color:var(--primary-glow);">📩 স্টুডেন্টদের প্রশ্নসমূহ</strong>
-        <div id="adminDoubtsList" style="max-height: 200px; overflow-y:auto; margin-top:8px;">লোডিং...</div>
+        <div id="adminDoubtsList" style="max-height: 220px; overflow-y:auto; margin-top:8px;">লোডিং...</div>
       </div>
 
       <!-- Registered Students List -->
@@ -439,7 +439,7 @@ footer {
 
     <!-- Batch Time Info -->
     <div class="card" style="border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.05);">
-      <strong style="color:#34d399; font-size:13px;">⏰ তোমার প্রাইভেটের সময়সূচী:</strong>
+      <strong style="color:#34d399; font-size:13px;">⏰ তোমার প্রাইভেটের সময়সূচী:</strong>
       <div id="myBatchTimeText" style="font-size:16px; font-weight:bold; margin-top:4px; color:#34d399;">
         চেক করা হচ্ছে...
       </div>
@@ -464,7 +464,7 @@ footer {
     <!-- Doubt Solver -->
     <div class="card" style="border-color: rgba(59, 130, 246, 0.3);">
       <strong style="font-size:15px; color:var(--primary-glow);">❓ স্যারকে প্রশ্ন করো (Doubt Solver)</strong>
-      <p style="font-size:12px; color:var(--text-muted); margin-top:2px; margin-bottom:10px;">লিখে, ছবি বা ভয়েস মেসেজ দিয়ে সমস্যা পাঠাও:</p>
+      <p style="font-size:12px; color:var(--text-muted); margin-top:2px; margin-bottom:10px;">লিখে, ছবি বা ভয়েস মেসেজ দিয়ে সমস্যা পাঠাও:</p>
       
       <textarea id="doubtText" rows="2" placeholder="তোমার প্রশ্নটি বিস্তারিত লেখো..."></textarea>
       
@@ -474,7 +474,7 @@ footer {
       </div>
 
       <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px;">
-        <button class="btn warning" id="btnRecordVoice" style="padding:8px 12px; font-size:12px; width:auto;">🎙️ ভয়েস রেকর্ড করো</button>
+        <button class="btn warning" id="btnRecordVoice" style="padding:8px 12px; font-size:12px; width:auto;">🎙️ ভয়েস রেকর্ড করো</button>
         <span id="recStatus" style="font-size:11px; color:#f59e0b;"></span>
       </div>
 
@@ -519,7 +519,7 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
 let currentProgress = {};
-let recordedAudioBase64 = null;
+let recordedAudioBlob = null;
 let mediaRecorder = null;
 let audioChunks = [];
 
@@ -541,6 +541,14 @@ function updateSectionOptions(classSelectId, sectionSelectId) {
     opts.forEach(o => secSelect.innerHTML += `<option value="${o}">${o}</option>`);
   }
 }
+
+// Theme Toggle
+const themeBtn = document.getElementById('themeBtn');
+themeBtn.onclick = () => {
+  const isLight = document.body.getAttribute('data-theme') === 'light';
+  document.body.setAttribute('data-theme', isLight ? 'dark' : 'light');
+  themeBtn.textContent = isLight ? '☀️' : '🌙';
+};
 
 // ==========================================
 // 2. GLOWING ANIMATED CANVAS BACKGROUND
@@ -599,7 +607,7 @@ btnUnlockAdmin.onclick = () => {
     adminContent.style.display = 'block';
     loadAdminData();
   } else {
-    alert('ভুল এডমিন পাসওয়ার্ড!');
+    alert('ভুল এডমিন পাসওয়ার্ড!');
   }
 };
 
@@ -642,7 +650,7 @@ async function loadAdminData() {
 
 document.getElementById('btnRefreshAdmin').onclick = loadAdminData;
 
-// Batch Timing Logic & Delete Button
+// Batch Timing Logic
 document.getElementById('btnSaveBatchTime').onclick = async () => {
   const cls = document.getElementById('adminClass').value;
   const sec = document.getElementById('adminSection').value;
@@ -658,7 +666,7 @@ document.getElementById('btnSaveBatchTime').onclick = async () => {
     batch_time: time
   }], { onConflict: 'class_name,section_name,gender' });
 
-  alert('টাইম সেভ হয়েছে!');
+  alert('টাইম সেভ হয়েছে!');
   document.getElementById('adminBatchTime').value = '';
   loadAdminBatchTimes();
 };
@@ -669,7 +677,7 @@ async function loadAdminBatchTimes() {
 
   const { data } = await db.from('batch_timings').select('*');
   if(!data || data.length === 0) {
-    container.innerHTML = '<div style="font-size:11px; opacity:0.7;">কোনো সময় সেট করা নেই।</div>';
+    container.innerHTML = '<div style="font-size:11px; opacity:0.7;">কোনো সময় সেট করা নেই।</div>';
     return;
   }
 
@@ -687,7 +695,7 @@ async function loadAdminBatchTimes() {
 }
 
 async function deleteBatchTime(id) {
-  if(confirm("সময়সূচীটি মুছে ফেলতে চান?")) {
+  if(confirm("সময়সূচীটি মুছে ফেলতে চান?")) {
     await db.from('batch_timings').delete().eq('id', id);
     loadAdminBatchTimes();
   }
@@ -697,7 +705,7 @@ async function deleteStudent(name) {
   if(confirm(`${name}-কে মুছে ফেলতে চান?`)) {
     await db.from('profiles').delete().eq('name', name);
     await db.from('student_data').delete().eq('student_name', name);
-    alert('স্টুডেন্ট মুছে ফেলা হয়েছে!');
+    alert('স্টুডেন্ট মুছে ফেলা হয়েছে!');
     loadAdminData();
   }
 }
@@ -708,7 +716,7 @@ document.getElementById('btnPublishNotice').onclick = async () => {
   if(!text) return alert('লেখা দিন!');
 
   await db.from('notices').insert([{ content: text }]);
-  alert('নোটিশ পাবলিশ করা হয়েছে!');
+  alert('নোটিশ পাবলিশ করা হয়েছে!');
   document.getElementById('adminNoticeInput').value = '';
   checkNotices();
 };
@@ -716,7 +724,7 @@ document.getElementById('btnPublishNotice').onclick = async () => {
 document.getElementById('btnDeleteNotice').onclick = async () => {
   if(confirm("নোটিশ ডিলিট করতে চান?")) {
     await db.from('notices').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    alert("ডিলিট করা হয়েছে!");
+    alert("ডিলিট করা হয়েছে!");
     checkNotices();
   }
 };
@@ -739,7 +747,7 @@ async function loadAdminDoubts() {
 
   const { data } = await db.from('doubts').select('*').order('created_at', { ascending: false });
   if(!data || data.length === 0) {
-    container.innerHTML = '<div style="font-size:11px; opacity:0.7;">কোনো প্রশ্ন পাওয়া যায়নি।</div>';
+    container.innerHTML = '<div style="font-size:11px; opacity:0.7;">কোনো প্রশ্ন পাওয়া যায়নি।</div>';
     return;
   }
 
@@ -757,7 +765,7 @@ async function loadAdminDoubts() {
         <input type="text" id="reply_input_${d.id}" placeholder="উত্তর দিন..." value="${d.reply || ''}">
         <div style="display:flex; gap:6px;">
           <button class="btn" style="padding:4px 8px; font-size:10px;" onclick="sendReply('${d.id}')">রিপ্লাই সেভ</button>
-          <button class="btn danger" style="padding:4px 8px; font-size:10px;" onclick="deleteDoubt('${d.id}')">ডিলিট</button>
+          <button class="btn danger" style="padding:4px 8px; font-size:10px;" onclick="deleteDoubt('${d.id}', '${d.audio_url || ''}', '${d.image_url || ''}')">ডিলিট</button>
         </div>
       </div>
     `;
@@ -768,12 +776,22 @@ async function loadAdminDoubts() {
 async function sendReply(id) {
   const text = document.getElementById(`reply_input_${id}`).value.trim();
   await db.from('doubts').update({ reply: text }).eq('id', id);
-  alert('উত্তর পাঠানো হয়েছে!');
+  alert('উত্তর পাঠানো হয়েছে!');
   loadAdminDoubts();
 }
 
-async function deleteDoubt(id) {
+async function deleteDoubt(id, audioUrl, imageUrl) {
   if(confirm("প্রশ্নটি মুছে ফেলতে চান?")) {
+    // Storage Cleanup
+    if(audioUrl) {
+      const audioFileName = audioUrl.split('/').pop();
+      await db.storage.from('doubts-media').remove([audioFileName]);
+    }
+    if(imageUrl) {
+      const imgFileName = imageUrl.split('/').pop();
+      await db.storage.from('doubts-media').remove([imgFileName]);
+    }
+
     await db.from('doubts').delete().eq('id', id);
     loadAdminDoubts();
   }
@@ -800,13 +818,13 @@ document.getElementById('btnSignup').onclick = async () => {
   if(!name || !cls || !sec || !gender || !pw) return alert('সকল তথ্য সঠিক দিন!');
 
   const { data: existing } = await db.from('profiles').select('name').eq('name', name).single();
-  if(existing) return alert('এই নামে ইতিপূর্বে রেজিস্ট্রেশন করা হয়েছে!');
+  if(existing) return alert('এই নামে ইতিপূর্বে রেজিস্ট্রেশন করা হয়েছে!');
 
   const { error } = await db.from('profiles').insert([{ name, class: cls, section: sec, gender: gender, password: pw }]);
-  if(error) return alert('অ্যাকাউন্ট খুলতে সমস্যা হয়েছে: ' + error.message);
+  if(error) return alert('অ্যাকাউন্ট খুলতে সমস্যা হয়েছে: ' + error.message);
 
   await db.from('student_data').insert([{ student_name: name, progress: {}, notes: '' }]);
-  alert('রেজিস্ট্রেশন সফল হয়েছে! এখন লগইন করো।');
+  alert('রেজিস্ট্রেশন সফল হয়েছে! এখন লগইন করো।');
   tabSignin.click();
 };
 
@@ -839,7 +857,7 @@ document.getElementById('btnLogout').onclick = () => {
 };
 
 // ==========================================
-// 5. STUDENT DOUBT SOLVER LOGIC
+// 5. STUDENT DOUBT SOLVER LOGIC (STORAGE BUCKET BINDING)
 // ==========================================
 const btnRecordVoice = document.getElementById('btnRecordVoice');
 const recStatus = document.getElementById('recStatus');
@@ -852,131 +870,126 @@ btnRecordVoice.onclick = async () => {
       audioChunks = [];
       mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
       mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-        const reader = new FileReader();
-        reader.readAsDataURL(audioBlob);
-        reader.onloadend = () => { recordedAudioBase64 = reader.result; };
+        recordedAudioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        recStatus.textContent = "রেকর্ড শেষ!";
       };
       mediaRecorder.start();
       btnRecordVoice.textContent = "⏹️ রেকর্ড থামাও";
       recStatus.textContent = "রেকর্ডিং হচ্ছে...";
     } catch(err) {
-      alert("মাইক্রোফোন পারমিশন প্রয়োজন!");
+      alert("মাইক্রোফোন পারমিশন প্রয়োজন!");
     }
   } else {
     mediaRecorder.stop();
-    btnRecordVoice.textContent = "🎙️ ভয়েস রেকর্ড করো";
-    recStatus.textContent = "রেকর্ড শেষ!";
+    btnRecordVoice.textContent = "🎙️ ভয়েস রেকর্ড করো";
   }
 };
 
 document.getElementById('btnSubmitDoubt').onclick = async () => {
   const text = document.getElementById('doubtText').value.trim();
   const imgInput = document.getElementById('doubtImg');
-  let imgBase64 = null;
+  const submitBtn = document.getElementById('btnSubmitDoubt');
 
-  if(!text && !imgInput.files[0] && !recordedAudioBase64) {
-    return alert('প্রশ্ন লিখুন, ছবি দিন অথবা ভয়েস মেসেজ দিন!');
+  if(!text && !imgInput.files[0] && !recordedAudioBlob) {
+    return alert('প্রশ্ন লিখুন, ছবি দিন অথবা ভয়েস মেসেজ দিন!');
   }
 
-  if(imgInput.files[0]) {
-    const reader = new FileReader();
-    reader.readAsDataURL(imgInput.files[0]);
-    reader.onload = async () => {
-      imgBase64 = reader.result;
-      await uploadDoubt(text, imgBase64, recordedAudioBase64);
-    };
-  } else {
-    await uploadDoubt(text, null, recordedAudioBase64);
+  submitBtn.disabled = true;
+  submitBtn.textContent = "আপলোড হচ্ছে...";
+
+  let audioPublicUrl = null;
+  let imgPublicUrl = null;
+
+  try {
+    // 1. Voice File Upload to Storage
+    if(recordedAudioBlob) {
+      const audioFileName = `voice_${Date.now()}_${Math.random().toString(36).substring(7)}.webm`;
+      const { error: audioErr } = await db.storage.from('doubts-media').upload(audioFileName, recordedAudioBlob, { contentType: 'audio/webm' });
+      if(audioErr) throw audioErr;
+
+      const { data: audioUrlData } = db.storage.from('doubts-media').getPublicUrl(audioFileName);
+      audioPublicUrl = audioUrlData.publicUrl;
+    }
+
+    // 2. Image Upload to Storage
+    if(imgInput.files[0]) {
+      const imgFile = imgInput.files[0];
+      const imgFileName = `img_${Date.now()}_${Math.random().toString(36).substring(7)}.${imgFile.name.split('.').pop()}`;
+      const { error: imgErr } = await db.storage.from('doubts-media').upload(imgFileName, imgFile);
+      if(imgErr) throw imgErr;
+
+      const { data: imgUrlData } = db.storage.from('doubts-media').getPublicUrl(imgFileName);
+      imgPublicUrl = imgUrlData.publicUrl;
+    }
+
+    // 3. Insert into Database
+    const { error: dbErr } = await db.from('doubts').insert([{
+      student_name: currentUser.name,
+      text_content: text,
+      image_url: imgPublicUrl,
+      audio_url: audioPublicUrl
+    }]);
+
+    if(dbErr) throw dbErr;
+
+    alert('তোমার প্রশ্ন সফলভাবে পাঠানো হয়েছে!');
+    document.getElementById('doubtText').value = '';
+    document.getElementById('doubtImg').value = '';
+    recordedAudioBlob = null;
+    recStatus.textContent = '';
+    loadMyDoubts();
+
+  } catch(err) {
+    alert("আপলোডে সমস্যা হয়েছে: " + err.message);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "স্যারকে পাঠাও 🚀";
   }
 };
 
-async function uploadDoubt(text, img, audio) {
-  const { error } = await db.from('doubts').insert([{
-    student_name: currentUser.name,
-    text_content: text,
-    image_url: img,
-    audio_url: audio
-  }]);
-
-  if(error) return alert("সমস্যা হয়েছে: " + error.message);
-
-  alert("প্রশ্ন স্যারের কাছে পাঠানো হয়েছে!");
-  document.getElementById('doubtText').value = '';
-  document.getElementById('doubtImg').value = '';
-  recordedAudioBase64 = null;
-  recStatus.textContent = '';
-  loadMyDoubts();
-}
-
 async function loadMyDoubts() {
+  if(!currentUser) return;
   const container = document.getElementById('myDoubtsList');
-  container.innerHTML = 'ডাটা লোড হচ্ছে...';
-
   const { data } = await db.from('doubts').select('*').eq('student_name', currentUser.name).order('created_at', { ascending: false });
+
   if(!data || data.length === 0) {
-    container.innerHTML = '<div style="font-size:11px; opacity:0.7;">তোমার কোনো প্রশ্ন নেই।</div>';
+    container.innerHTML = '<div style="font-size:11px; opacity:0.7;">তুমি এখনো কোনো প্রশ্ন করোনি।</div>';
     return;
   }
 
   container.innerHTML = '';
   data.forEach(d => {
-    const card = document.createElement('div');
-    card.className = 'doubt-card';
-    card.innerHTML = `
-      ${d.text_content ? `<div style="font-size:12.5px;"><b>প্রশ্ন:</b> ${d.text_content}</div>` : ''}
-      ${d.image_url ? `<img src="${d.image_url}" style="width:100%; max-height:100px; object-fit:contain; border-radius:6px; margin-top:4px;">` : ''}
-      ${d.audio_url ? `<audio controls src="${d.audio_url}" style="width:100%; height:30px; margin-top:4px;"></audio>` : ''}
-      <div style="font-size:11.5px; color:#34d399; font-weight:bold; margin-top:6px; background:rgba(16,185,129,0.08); padding:8px; border-radius:6px;">
-        👨‍🏫 উত্তর: ${d.reply ? d.reply : '<i>স্যার এখনো উত্তর দেননি...</i>'}
+    container.innerHTML += `
+      <div style="font-size:12px; background:rgba(255,255,255,0.03); padding:8px; border-radius:8px; margin-bottom:6px; border:1px solid var(--card-border);">
+        ${d.text_content ? `<div><b>প্রশ্ন:</b> ${d.text_content}</div>` : ''}
+        ${d.audio_url ? `<audio controls src="${d.audio_url}" style="width:100%; height:32px; margin-top:4px;"></audio>` : ''}
+        ${d.image_url ? `<img src="${d.image_url}" style="width:100%; max-height:100px; object-fit:contain; border-radius:6px; margin-top:4px;">` : ''}
+        <div style="color:${d.reply ? '#34d399' : '#f59e0b'}; margin-top:4px; font-weight:bold;">
+          ${d.reply ? `স্যার: ${d.reply}` : '⏳ উত্তরের অপেক্ষায়...'}
+        </div>
       </div>
     `;
-    container.appendChild(card);
   });
 }
 
 // ==========================================
-// 6. DASHBOARD & DATA SYNC
+// 6. DASHBOARD MAIN LOADER
 // ==========================================
-const chapters = [
-  {id:1,title:'অধ্যায় ১ — রসায়নের ধারণা',link:'https://drive.google.com/drive/folders/1Ds1yv14TW_U_fEAQ1CmGNVGWCLsu3mZR'},
-  {id:2,title:'অধ্যায় ২ — পদার্থের অবস্থা',link:'https://drive.google.com/drive/folders/10VaPzj7WFdz5bLKWtMWC5FbcAdFPrK9b'},
-  {id:3,title:'অধ্যায় ৩ — পদার্থের গঠন',link:'https://drive.google.com/drive/folders/1bqV_T9nmr9tR4nlpLbZIOQyEa_Xs0zLB'},
-  {id:4,title:'অধ্যায় ৪ — পর্যায় সারণি',link:'https://drive.google.com/drive/folders/10xSn6i4Rpsz2lTUEUZDwHcb_RcHg4Atk'},
-  {id:5,title:'অধ্যায় ৫ — রাসায়নিক বন্ধন',link:'https://drive.google.com/drive/folders/13AhbHSl_0ZinblLKlKqQVV6JWUNNTmux'},
-  {id:6,title:'অধ্যায় ৬ — মোলের ধারণা ও গণনা',link:'https://drive.google.com/drive/folders/1Hq8zkRDLcnCZIwuoRhe9BkeAhF-ffW_h'},
-  {id:7,title:'অধ্যায় ৭ — রাসায়িক বিক্রিয়া',link:'https://drive.google.com/drive/folders/1qlsKEjrqASsRC_W7cPiqNrhX_JPahoAH'},
-  {id:8,title:'অধ্যায় ৮ — রসায়ন ও শক্তি',link:'https://drive.google.com/drive/folders/13XBRj19VB8wdPC1hfi7Bss2JblTPKJFk'},
-  {id:9,title:'অধ্যায় ৯ — এসিড-ক্ষারক সমতা',link:'https://drive.google.com/drive/folders/1yTXT_DG7MGhtEVTEiWig97sd61ORucgN'},
-  {id:10,title:'অধ্যায় ১০ — খনিজ সম্পদঃ ধাতু ও অধাতু',link:'https://drive.google.com/drive/folders/1Ii6tbS5hB6tEJBHf4LMWepluDKYRBrUF'},
-  {id:11,title:'অধ্যায় ১১ — খনিজ সম্পদঃ জীবাশ্ম',link:'https://drive.google.com/drive/folders/18Yp5bORxS-kZAy4I-A-3wVnFGZGATRNC'},
-  {id:12,title:'অধ্যায় ১২ — আমাদের জীবনে রসায়ন',link:'https://drive.google.com/drive/folders/1ahUumVvXBiyy1Urug5cjM5jturpqwq5_'}
-];
-
 async function loadDashboard() {
   document.getElementById('authCard').style.display = 'none';
   document.getElementById('chaptersArea').style.display = 'block';
 
   document.getElementById('userProfileName').textContent = currentUser.name;
-  document.getElementById('userProfileMeta').textContent = `${currentUser.class} | ${currentUser.section} | ${currentUser.gender}`;
+  document.getElementById('userProfileMeta').textContent = `${currentUser.class} | ${currentUser.section} (${currentUser.gender})`;
 
-  fetchUserBatchTime();
-
-  const { data } = await db.from('student_data').select('*').eq('student_name', currentUser.name).single();
-  if(data) {
-    currentProgress = data.progress || {};
-    document.getElementById('noteText').value = data.notes || '';
-  }
-
-  renderChapters();
-  fetchLeaderboard();
+  loadMyBatchTime();
+  loadChaptersAndProgress();
   loadMyDoubts();
+  loadLeaderboard();
+  loadCloudNote();
 }
 
-async function fetchUserBatchTime() {
-  const display = document.getElementById('myBatchTimeText');
-  display.textContent = 'টাইম চেক হচ্ছে...';
-
+async function loadMyBatchTime() {
   const { data } = await db.from('batch_timings')
     .select('batch_time')
     .eq('class_name', currentUser.class)
@@ -984,85 +997,97 @@ async function fetchUserBatchTime() {
     .eq('gender', currentUser.gender)
     .single();
 
-  if(data && data.batch_time) {
-    display.textContent = `📅 ${data.batch_time}`;
-  } else {
-    display.textContent = 'নির্দিষ্ট কোনো সময় এখনো সেট করা হয়নি।';
-    display.style.fontSize = '12px';
-    display.style.color = 'var(--text-muted)';
-  }
+  document.getElementById('myBatchTimeText').textContent = data ? data.batch_time : 'সময়সূচী এখনো সেট করা হয়নি';
 }
 
-function renderChapters(){
-  const chaptersList = document.getElementById('chaptersList');
-  chaptersList.innerHTML='';
-  chapters.forEach((ch)=>{
-    const div = document.createElement('div');
-    div.className = 'chapter';
-    div.innerHTML = `
-      <div class="chapter-title">${ch.title}</div>
-      <div style="display:flex; gap:10px; align-items:center;">
-        <button class="btn" style="padding:6px 12px; font-size:11px; width:auto;" onclick="window.open('${ch.link}','_blank')">PDF</button>
-        <input type="checkbox" style="width:18px; height:18px; cursor:pointer; accent-color: var(--accent);" ${currentProgress[ch.id]?'checked':''} onchange="saveProg(${ch.id}, this.checked)">
-      </div>`;
-    chaptersList.appendChild(div);
+const chemistryChapters = [
+  "অধ্যায় ১: রসায়নের ধারণা",
+  "অধ্যায় ২: পদার্থের অবস্থা",
+  "অধ্যায় ৩: পদার্থের গঠন",
+  "অধ্যায় ৪: পর্যায় সারণি",
+  "অধ্যায় ৫: রাসায়নিক বন্ধন",
+  "অধ্যায় ৬: মোলের ধারণা ও রাসায়নিক গণনা",
+  "অধ্যায় ৭: রাসায়নিক বিক্রিয়া",
+  "অধ্যায় ৮: রসায়ন ও শক্তি",
+  "অধ্যায় ৯: এসিড-ক্ষার সমতা",
+  "অধ্যায় ১০: খনিজ সম্পদ: ধাতু-অধাতু",
+  "অধ্যায় ১১: খনিজ সম্পদ: জীবাশ্ম",
+  "অধ্যায় ১২: আমাদের জীবনে রসায়ন"
+];
+
+async function loadChaptersAndProgress() {
+  const { data } = await db.from('student_data').select('progress').eq('student_name', currentUser.name).single();
+  currentProgress = (data && data.progress) ? data.progress : {};
+
+  const list = document.getElementById('chaptersList');
+  list.innerHTML = '';
+
+  let doneCount = 0;
+  chemistryChapters.forEach((ch, idx) => {
+    const isDone = currentProgress[idx] || false;
+    if(isDone) doneCount++;
+
+    const item = document.createElement('div');
+    item.className = 'chapter';
+    item.innerHTML = `
+      <span class="chapter-title">${ch}</span>
+      <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleChapter(${idx}, this.checked)" style="width:18px; height:18px; cursor:pointer;">
+    `;
+    list.appendChild(item);
   });
-  updateProgressUI();
+
+  updateProgressUI(doneCount);
 }
 
-async function saveProg(id, isChecked) {
-  currentProgress[id] = isChecked;
-  updateProgressUI();
-  
+async function toggleChapter(index, status) {
+  currentProgress[index] = status;
   await db.from('student_data').update({ progress: currentProgress }).eq('student_name', currentUser.name);
-  fetchLeaderboard();
-}
-
-function updateProgressUI(){
-  const done = Object.values(currentProgress).filter(v=>v).length;
-  const pct = Math.round((done / chapters.length) * 100);
   
-  document.getElementById('chartBar').style.width = pct + '%';
-  document.getElementById('progressText').textContent = 'প্রগতি: ' + pct + '%';
-  document.getElementById('chartText').textContent = `সম্পন্ন: ${done}/১২`;
+  const doneCount = Object.values(currentProgress).filter(v => v).length;
+  updateProgressUI(doneCount);
+  loadLeaderboard();
 }
 
-async function fetchLeaderboard() {
-  const { data } = await db.from('student_data').select('student_name, progress');
-  if(!data) return;
+function updateProgressUI(doneCount) {
+  const pct = Math.round((doneCount / chemistryChapters.length) * 100);
+  document.getElementById('chartBar').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `প্রগতি: ${pct}%`;
+  document.getElementById('chartText').textContent = `সম্পন্ন: ${doneCount}/${chemistryChapters.length}`;
+}
 
-  const sorted = data.map(item => {
-    const done = Object.values(item.progress || {}).filter(v=>v).length;
-    return { name: item.student_name, score: done };
-  }).sort((a, b) => b.score - a.score);
-
+async function loadLeaderboard() {
   const container = document.getElementById('leaderboardList');
+  const { data: studentData } = await db.from('student_data').select('*');
+
+  if(!studentData) return;
+
+  const sorted = studentData.map(s => {
+    const done = Object.values(s.progress || {}).filter(v => v).length;
+    return { name: s.student_name, count: done, pct: Math.round((done/12)*100) };
+  }).sort((a,b) => b.count - a.count).slice(0, 5);
+
   container.innerHTML = '';
-  sorted.slice(0, 5).forEach((st, idx) => {
+  sorted.forEach((item, idx) => {
     container.innerHTML += `
-      <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--card-border); font-size:13px;">
-        <span><b>#${idx+1}</b> ${st.name}</span>
-        <span style="color:var(--primary-glow); font-weight:bold;">${st.score}/১২ টি সম্পন্ন</span>
-      </div>`;
+      <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--card-border); font-size:12px;">
+        <span><b>#${idx+1}</b> ${item.name}</span>
+        <span style="color:var(--primary-glow); font-weight:bold;">${item.count}/১২ (${item.pct}%)</span>
+      </div>
+    `;
   });
+}
+
+async function loadCloudNote() {
+  const { data } = await db.from('student_data').select('notes').eq('student_name', currentUser.name).single();
+  if(data && data.notes) {
+    document.getElementById('noteText').value = data.notes;
+  }
 }
 
 document.getElementById('saveNote').onclick = async () => {
-  const text = document.getElementById('noteText').value;
-  await db.from('student_data').update({ notes: text }).eq('student_name', currentUser.name);
-  alert('নোট সেভ হয়েছে!');
-};
-
-// Theme Toggle
-const themeBtn = document.getElementById('themeBtn');
-themeBtn.onclick = () => {
-  if(document.documentElement.getAttribute('data-theme') === 'light') {
-    document.documentElement.removeAttribute('data-theme');
-    themeBtn.textContent = '☀️';
-  } else {
-    document.documentElement.setAttribute('data-theme', 'light');
-    themeBtn.textContent = '🌙';
-  }
+  const val = document.getElementById('noteText').value;
+  await db.from('student_data').update({ notes: val }).eq('student_name', currentUser.name);
+  alert('নোট সেভ করা হয়েছে! ☁️');
 };
 </script>
 </body>
