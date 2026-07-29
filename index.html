@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>রসায়ন ড্যাশবোর্ড – মেহেদী স্যার এক্সক্লুসিভ</title>
 <meta name="theme-color" content="#030712">
+
+<!-- Supabase CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 :root {
   --accent: #3ea0ff;
@@ -39,7 +43,6 @@
 
 html, body { min-height: 100vh; color: var(--text); overflow-x: hidden; width: 100%; background: transparent; }
 
-/* সায়েন্টিফিক মুভিং ব্যাকগ্রাউন্ড ক্যানভাস */
 #bg-canvas {
   position: fixed;
   top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
@@ -52,7 +55,6 @@ html, body { min-height: 100vh; color: var(--text); overflow-x: hidden; width: 1
 .wrapper { display: flex; justify-content: center; padding: 16px 12px; width: 100%; }
 .app { width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: var(--gap); z-index: 1; }
 
-/* গ্লাস মরফিজম অপ্টিমাইজড ব্লার */
 .card {
   background: var(--card);
   backdrop-filter: blur(12px);
@@ -70,7 +72,6 @@ html, body { min-height: 100vh; color: var(--text); overflow-x: hidden; width: 1
   100% { opacity: 1; transform: translateY(0); }
 }
 
-/* প্রিমিয়াম হেডার */
 .header {
   background: linear-gradient(135deg, rgba(15, 23, 42, 0.7), rgba(2, 6, 23, 0.7));
   color: white;
@@ -94,110 +95,63 @@ html, body { min-height: 100vh; color: var(--text); overflow-x: hidden; width: 1
   box-shadow: 0 0 10px rgba(62, 160, 255, 0.2);
 }
 
-/* বাটন ট্রানজিশন ও মাইক্রো-ইন্টারঅ্যাকশন */
 .btn {
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
   color: #fff; border: none; padding: 12px 20px; border-radius: 12px;
   font-weight: 700; font-size: 14px; cursor: pointer;
   text-align: center; text-decoration: none; display: inline-block;
   box-shadow: 0 4px 14px rgba(62, 160, 255, 0.3);
-  position: relative; overflow: hidden;
+  width: 100%;
 }
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(62, 160, 255, 0.4);
-}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(62, 160, 255, 0.4); }
 .btn:active { transform: translateY(1px) scale(0.97); }
 
 .btn.ghost {
   background: transparent; border: 1px solid var(--accent); color: var(--accent);
   box-shadow: none;
 }
-.btn.ghost:hover {
-  background: rgba(62, 160, 255, 0.1);
-  transform: translateY(-2px);
-}
-
-/* ফর্ম পেজের জন্য স্পেশাল পালসিং এলার্ট ব্যাজ */
-.alert-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  padding: 4px 10px;
-  border-radius: 30px;
-  color: #f87171;
-  margin-bottom: 12px;
-  font-weight: bold;
-}
-.pulse-dot {
-  width: 8px; height: 8px; background: #ef4444; border-radius: 50%;
-  animation: pulseGen 1.5s infinite;
-}
-@keyframes pulseGen {
-  0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
-  100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-}
+.btn.ghost:hover { background: rgba(62, 160, 255, 0.1); }
 
 .theme-toggle {
   background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);
   color: white; width: 38px; height: 38px; border-radius: 50%; cursor: pointer;
   display: flex; align-items: center; justify-content: center; font-size: 16px;
 }
-.theme-toggle:hover { transform: rotate(30deg) scale(1.1); background: rgba(255, 255, 255, 0.15); }
 
-/* চ্যাপ্টার রো */
 .chapter {
   display: flex; justify-content: space-between; align-items: center; gap: 8px;
   padding: 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--border); margin-top: 8px;
 }
-.chapter:hover {
-  background: rgba(62, 160, 255, 0.05);
-  border-color: rgba(62, 160, 255, 0.25);
-  transform: translateX(4px);
-}
-[data-theme="light"] .chapter { background: rgba(255, 255, 255, 0.4); }
-[data-theme="light"] .chapter:hover { background: rgba(30, 41, 59, 0.03); }
-.chapter-title { font-size: 13.5px; font-weight: 600; max-width: 72%; line-height: 1.4; }
+.chapter-title { font-size: 13.5px; font-weight: 600; max-width: 70%; line-height: 1.4; }
 
-/* ইনপুট ফিল্ডস */
-input[type="password"], input[type="number"], textarea {
+input[type="text"], input[type="password"], input[type="number"], textarea {
   width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border);
-  outline: none; background: rgba(30, 41, 59, 0.4); color: var(--text); font-size: 14px;
+  outline: none; background: rgba(30, 41, 59, 0.4); color: var(--text); font-size: 14px; margin-bottom: 10px;
 }
 input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 12px rgba(62, 160, 255, 0.2); }
-[data-theme="light"] input, [data-theme="light"] textarea { background: rgba(255, 255, 255, 0.4); }
 
-.lock-row { display: flex; gap: 8px; margin-top: 10px; }
-
-/* পর্যায় সারণি গ্রিড */
 .periodic-table { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-top: 8px; }
 .element-cell {
   background: linear-gradient(135deg, rgba(62, 160, 255, 0.05), rgba(35, 111, 191, 0.1));
   border: 1px solid var(--border); border-radius: 8px; padding: 8px 2px;
   text-align: center; cursor: pointer; color: var(--text); font-size: 13px;
 }
-.element-cell:hover {
-  transform: scale(1.08); border-color: var(--accent);
-  box-shadow: 0 4px 12px rgba(62, 160, 255, 0.25);
-}
 
-/* প্রগ্রেস এনিমেশন */
 .analytics-chart { height: 14px; background: rgba(255,255,255,0.08); border-radius: 7px; overflow: hidden; margin-top: 8px; }
-[data-theme="light"] .analytics-chart { background: rgba(0,0,0,0.05); }
-.chart-fill { height: 100%; background: linear-gradient(90deg, #10b981, #34d399); width: 0%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+.chart-fill { height: 100%; background: linear-gradient(90deg, #10b981, #34d399); width: 0%; transition: width 0.8s ease; }
 
-/* মোডাল গ্লাস মরফিজম */
-.modal-backdrop { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(2, 6, 23, 0.6); z-index: 100; backdrop-filter: blur(6px); opacity: 0; transition: opacity 0.3s ease; }
-.modal-backdrop.show { display: flex; opacity: 1; }
-.modal { width: 100%; max-width: 350px; background: var(--card); backdrop-filter: blur(30px); padding: 20px; border-radius: 16px; border: 1px solid var(--border); transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.modal-backdrop.show .modal { transform: scale(1); }
+.modal-backdrop { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(2, 6, 23, 0.6); z-index: 100; backdrop-filter: blur(6px); }
+.modal-backdrop.show { display: flex; }
+.modal { width: 100%; max-width: 350px; background: var(--card); padding: 20px; border-radius: 16px; border: 1px solid var(--border); }
 
-footer { text-align: center; color: var(--muted); font-size: 11.5px; padding: 16px 0; line-height: 1.4; }
+.tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+.tab-btn { flex: 1; padding: 8px; background: transparent; border: 1px solid var(--border); color: var(--text); border-radius: 8px; cursor: pointer; font-weight: bold; }
+.tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+.leaderboard-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid var(--border); font-size: 13px; }
+
+footer { text-align: center; color: var(--muted); font-size: 11.5px; padding: 16px 0; }
 </style>
 </head>
 <body>
@@ -205,8 +159,9 @@ footer { text-align: center; color: var(--muted); font-size: 11.5px; padding: 16
 <canvas id="bg-canvas"></canvas>
 
 <div class="wrapper">
-  <div class="app" role="application">
+  <div class="app">
 
+    <!-- Header -->
     <div class="header card">
       <div class="header-top">
         <div>
@@ -215,39 +170,48 @@ footer { text-align: center; color: var(--muted); font-size: 11.5px; padding: 16
         </div>
         <button class="theme-toggle" id="themeBtn">☀️</button>
       </div>
-      <div class="creator-badge">🚀 Creator & Dev: Kazim Nahian</div>
+      <div class="creator-badge">🚀 Dev: Kazim Nahian</div>
     </div>
 
-    <!-- ১. সিকিউর পাসওয়ার্ড লক কার্ড -->
-    <div class="card" id="lockCard">
-      <strong style="font-size: 14px;">🔒 সিকিউর আনলক</strong>
-      <div class="lock-row">
-        <input id="pw" type="password" placeholder="পাসওয়ার্ড লিখো...">
-        <button class="btn" id="unlockBtn">আনলক</button>
+    <!-- Auth Card (Login / Signup) -->
+    <div class="card" id="authCard">
+      <div class="tabs">
+        <button class="tab-btn active" id="tabSignin">লগইন (Signin)</button>
+        <button class="tab-btn" id="tabSignup">রেজিস্ট্রেশন (Signup)</button>
+      </div>
+
+      <!-- Signin Form -->
+      <div id="signinForm">
+        <input type="text" id="loginName" placeholder="তোমার নাম (Name)">
+        <input type="password" id="loginPw" placeholder="পাসওয়ার্ড (Password)">
+        <button class="btn" id="btnSignin">লগইন করো 🚀</button>
+      </div>
+
+      <!-- Signup Form -->
+      <div id="signupForm" style="display:none;">
+        <input type="text" id="regName" placeholder="পূর্ণ নাম (Name)">
+        <input type="text" id="regClass" placeholder="শ্রেণী (e.g. 10)">
+        <input type="text" id="regSection" placeholder="শাখা / বিভাগ (e.g. Science / A)">
+        <input type="password" id="regPw" placeholder="পাসওয়ার্ড তৈরি করো">
+        <button class="btn" id="btnSignup">অ্যাকেউন্ট তৈরি করো ✨</button>
       </div>
     </div>
 
-    <!-- ২. গুগল ফর্ম সাবমিশন গেটওয়ে (পাসওয়ার্ড সঠিক হলে এটি আসবে) -->
-    <div class="card" id="formGatewayCard" style="display:none">
-      <div class="alert-badge">
-        <div class="pulse-dot"></div>
-        <span>অ্যাক্সেস ভেরিফিকেশন পেন্ডিং</span>
-      </div>
-      <h2 style="font-size: 16px; font-weight: 800; margin-bottom: 6px; color: var(--text);">📝 শিক্ষার্থী তথ্য সংগ্রহ গেটওয়ে</h2>
-      <div style="font-size: 13px; line-height: 1.6; margin-bottom: 16px; opacity: 0.9; color: var(--text);">
-        প্রিয় শিক্ষার্থী, মেহেদী স্যার রসায়ন পোর্টালের প্রিমিয়াম লেকচার শিট, হ্যান্ডনোট এবং স্টাডি ট্র্যাকার ফিচারগুলো সফলভাবে আনলক করার জন্য তোমার সঠিক তথ্য দিয়ে নিচের অফিশিয়াল গুগল ফর্মটি পূরণ করা বাধ্যতামূলক। তথ্য সাবমিট করা সম্পন্ন হলে ২য় বাটনটি প্রেস করো।
-      </div>
-      <div style="display: flex; flex-direction: column; gap: 10px;">
-        <a href="https://forms.gle/WSsi21UXLowMiXyb8" target="_blank" class="btn" id="fillFormBtn" style="letter-spacing: 0.3px;">১. গুগল ফর্ম পূরণ করব 🚀</a>
-        <button class="btn ghost" id="alreadyFilledBtn" style="font-weight: 600;">২. ফর্ম অলরেডি পূরণ করেছি ✔️</button>
-      </div>
-    </div>
-
-    <!-- ৩. মেইন ড্যাশবোর্ড এরিয়া -->
+    <!-- Main Dashboard -->
     <div id="chaptersArea" style="display:none">
       
+      <!-- User Info Badge -->
+      <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <strong id="userProfileName" style="font-size:15px; color:var(--accent);">—</strong>
+          <div id="userProfileMeta" style="font-size:12px; opacity:0.8;">—</div>
+        </div>
+        <button class="btn ghost" id="btnLogout" style="width:auto; padding:6px 12px; font-size:11px;">লগআউট</button>
+      </div>
+
+      <!-- Progress Analytics -->
       <div class="card">
-        <strong style="font-size:14px;">📈 স্টাডি অস্যানালিটিক্স গ্রাফ</strong>
+        <strong style="font-size:14px;">📈 স্টাডি প্রোগ্রেস ট্র্যাকার</strong>
         <div class="analytics-chart"><div class="chart-fill" id="chartBar"></div></div>
         <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:12px; font-weight:bold;">
           <span id="progressText">প্রগতি: 0%</span>
@@ -255,40 +219,47 @@ footer { text-align: center; color: var(--muted); font-size: 11.5px; padding: 16
         </div>
       </div>
 
+      <!-- Chapters List -->
       <div class="card">
         <strong style="font-size:14px;">📚 অধ্যায় তালিকা</strong>
         <div id="chaptersList"></div>
       </div>
 
+      <!-- Leaderboard -->
+      <div class="card">
+        <strong style="font-size:14px;">🏆 ব্যাচ লিডারবোর্ড (Top Progress)</strong>
+        <div id="leaderboardList" style="margin-top:10px;">লোডিং...</div>
+      </div>
+
+      <!-- Periodic Table -->
       <div class="card">
         <strong style="font-size:14px;">🧪 পর্যায় সারণি (শর্ট ভিউ)</strong>
         <div class="periodic-table" id="periodicTable"></div>
       </div>
 
+      <!-- Pomodoro Timer -->
       <div class="card">
         <strong style="font-size:14px;">⏱️ পোমোডোরো টাইমার</strong>
         <div style="display:flex; gap:8px; margin:8px 0; align-items:center;">
-          <input type="number" id="customMin" value="25" min="1" max="60" style="width:70px; padding:8px;">
-          <span style="font-size:13px; font-weight: bold;">মিনিট কাস্টম করো</span>
+          <input type="number" id="customMin" value="25" min="1" max="60" style="width:70px; padding:8px; margin:0;">
+          <span style="font-size:13px; font-weight: bold;">মিনিট সেট করো</span>
         </div>
         <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:10px 14px; border-radius:12px; border: 1px solid var(--border);">
           <div style="font-size:26px; font-weight:900; color:var(--accent);" id="timeDisplay">25:00</div>
           <div style="font-size:13px;">স্টেট: <span id="timerState" style="font-weight:bold; color:#10b981;">প্রস্তুত</span></div>
         </div>
         <div style="display:flex; gap:6px; margin-top:10px;">
-          <button class="btn" id="startTimer" style="padding:10px 16px; font-size:13px;">স্টার্ট</button>
-          <button class="btn ghost" id="pauseTimer" style="padding:10px 16px; font-size:13px;">পজ</button>
-          <button class="btn ghost" id="resetTimer" style="padding:10px 16px; font-size:13px;">রিসেট</button>
+          <button class="btn" id="startTimer" style="padding:10px;">স্টার্ট</button>
+          <button class="btn ghost" id="pauseTimer" style="padding:10px;">পজ</button>
+          <button class="btn ghost" id="resetTimer" style="padding:10px;">রিসেট</button>
         </div>
       </div>
 
+      <!-- Cloud Notepad -->
       <div class="card">
-        <strong style="font-size:14px;">📝 পার্সোনাল নোটপ্যাড</strong>
-        <textarea id="noteText" rows="3" placeholder="রসায়ন সংক্ষিপ্ত নোট এখানে লেখো..." style="margin-top:8px;"></textarea>
-        <div style="display:flex; gap:6px; margin-top:8px;">
-          <button class="btn" id="saveNote" style="padding:10px 16px; font-size:13px;">সেভ</button>
-          <button class="btn ghost" id="clearNote" style="padding:10px 16px; font-size:13px;">মুছুন</button>
-        </div>
+        <strong style="font-size:14px;">📝 ক্লাউড নোটপ্যাড</strong>
+        <textarea id="noteText" rows="3" placeholder="রসায়ন সংক্ষিপ্ত নোট লেখো..." style="margin-top:8px;"></textarea>
+        <button class="btn" id="saveNote">নোট সেভ করো ☁️</button>
       </div>
 
     </div>
@@ -300,156 +271,230 @@ footer { text-align: center; color: var(--muted); font-size: 11.5px; padding: 16
   </div>
 </div>
 
+<!-- Modal -->
 <div class="modal-backdrop" id="modalBackdrop">
   <div class="modal">
-    <h3 id="modalTitle" style="font-size:16px; color:var(--accent)">তথ্য উইন্ডো</h3>
+    <h3 id="modalTitle" style="font-size:16px; color:var(--accent)">তথ্য</h3>
     <div id="modalLinks" style="line-height:1.6; font-size:14px; margin-top:10px;"></div>
-    <div style="text-align:right; margin-top:16px;"><button class="btn ghost" id="closeModal" style="padding:8px 14px; font-size:12px;">বন্ধ করো</button></div>
+    <div style="text-align:right; margin-top:16px;"><button class="btn ghost" id="closeModal" style="width:auto; padding:6px 12px;">বন্ধ করো</button></div>
   </div>
 </div>
 
 <script>
 // ==========================================
-// ১. অলওয়েজ মুভিং সায়েন্টিফিক ক্যানভাস 
+// 1. SUPABASE INITIALIZATION (তোমার Credentials বসাও)
+// ==========================================
+const SUPABASE_URL = "https://your-project-id.supabase.co";
+const SUPABASE_ANON_KEY = "your-anon-key-here";
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+let currentProgress = {};
+
+// ==========================================
+// 2. CANVAS ANIMATION
 // ==========================================
 const canvas = document.getElementById('bg-canvas');
 const ctx = canvas.getContext('2d');
 let particles = [];
-let mouse = { x: null, y: null, radius: 120 };
-
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
+function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
-
-window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
-window.addEventListener('mouseout', () => { mouse.x = null; mouse.y = null; });
-window.addEventListener('touchstart', (e) => { if(e.touches.length > 0) { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; } });
-window.addEventListener('touchend', () => { mouse.x = null; mouse.y = null; });
 
 class Particle {
   constructor() {
     this.x = Math.random() * canvas.width;
     this.y = Math.random() * canvas.height;
     this.radius = Math.random() * 3 + 1.5;
-    this.vx = (Math.random() - 0.5) * 1.0; 
+    this.vx = (Math.random() - 0.5) * 1.0;
     this.vy = (Math.random() - 0.5) * 1.0;
   }
   update() {
-    this.x += this.vx;
-    this.y += this.vy;
-    
+    this.x += this.vx; this.y += this.vy;
     if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
     if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
-
-    if (mouse.x != null && mouse.y != null) {
-      let dx = mouse.x - this.x;
-      let dy = mouse.y - this.y;
-      let dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < mouse.radius) {
-        let force = (mouse.radius - dist) / mouse.radius;
-        this.x -= dx / dist * force * 2.5;
-        this.y -= dy / dist * force * 2.5;
-      }
-    }
   }
   draw() {
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-    ctx.fillStyle = isLight ? 'rgba(30, 100, 210, 0.4)' : 'rgba(96, 165, 250, 0.6)';
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(96, 165, 250, 0.6)'; ctx.fill();
   }
 }
-
-function initParticles() {
-  particles = [];
-  const count = Math.min(Math.floor(canvas.width / 8), 75);
-  for (let i = 0; i < count; i++) particles.push(new Particle());
-}
+function initParticles() { particles = []; for (let i = 0; i < 50; i++) particles.push(new Particle()); }
 initParticles();
-
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-  
-  for (let i = 0; i < particles.length; i++) {
-    particles[i].update();
-    particles[i].draw();
-    
-    for (let j = i + 1; j < particles.length; j++) {
-      const dx = particles[i].x - particles[j].x;
-      const dy = particles[i].y - particles[j].y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      
-      if (dist < 110) {
-        ctx.beginPath();
-        ctx.moveTo(particles[i].x, particles[i].y);
-        ctx.lineTo(particles[j].x, particles[j].y);
-        ctx.strokeStyle = isLight ? `rgba(30, 100, 210, ${0.35 - dist/400})` : `rgba(96, 165, 250, ${0.45 - dist/400})`;
-        ctx.lineWidth = 0.9;
-        ctx.stroke();
-      }
-    }
-  }
+  particles.forEach(p => { p.update(); p.draw(); });
   requestAnimationFrame(animate);
 }
 animate();
 
 // ==========================================
-// ২. পাসওয়ার্ড ও সিকিউরিটি ক্রিপ্টো
+// 3. AUTH SYSTEM (Signup & Signin)
 // ==========================================
-const HASHED_PW = "74495e86d06159516629ecf6fa1311b7fcf76f7b9cc0f0656094b840eb352636"; 
+const tabSignin = document.getElementById('tabSignin');
+const tabSignup = document.getElementById('tabSignup');
+const signinForm = document.getElementById('signinForm');
+const signupForm = document.getElementById('signupForm');
 
-async function sha256(message) {
-  const msgBuffer = new TextEncoder().encode(message);                    
-  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
+tabSignin.onclick = () => { tabSignin.classList.add('active'); tabSignup.classList.remove('active'); signinForm.style.display='block'; signupForm.style.display='none'; };
+tabSignup.onclick = () => { tabSignup.classList.add('active'); tabSignin.classList.remove('active'); signupForm.style.display='block'; signinForm.style.display='none'; };
 
-// ==========================================
-// ৩. ৫ মিনিট নিষ্ক্রিয়তা ট্র্যাকিং ইঞ্জিন (Auto Lock)
-// ==========================================
-let idleTimer = null;
-const IDLE_LIMIT = 5 * 60 * 1000; 
+// Signup Logic
+document.getElementById('btnSignup').onclick = async () => {
+  const name = document.getElementById('regName').value.trim();
+  const cls = document.getElementById('regClass').value.trim();
+  const sec = document.getElementById('regSection').value.trim();
+  const pw = document.getElementById('regPw').value.trim();
 
-function resetIdleTimer() {
-  if (idleTimer) clearTimeout(idleTimer);
-  if (chaptersArea.style.display === 'block') {
-    idleTimer = setTimeout(() => {
-      chaptersArea.style.display = 'none';
-      lockCard.style.display = 'block';
-      formGatewayCard.style.display = 'none';
-      pwInput.value = '';
-      alert('আপনি ৫ মিনিট নিষ্ক্রিয় ছিলেন! সুরক্ষার জন্য পুনরায় লক করা হয়েছে।');
-    }, IDLE_LIMIT);
+  if(!name || !cls || !sec || !pw) return alert('সকল তথ্য সঠিকভাবে পূরণ করো!');
+
+  // Check if user exists
+  const { data: existing } = await db.from('profiles').select('name').eq('name', name).single();
+  if(existing) return alert('এই নামে ইতিপূর্বে রেজিস্ট্রেশন করা হয়েছে! অন্য নাম ব্যবহার করো বা লগইন করো।');
+
+  // Insert Profile
+  const { error } = await db.from('profiles').insert([{ name, class: cls, section: sec, password: pw }]);
+  if(error) return alert('অ্যাকাউন্ট খুলতে সমস্যা হয়েছে: ' + error.message);
+
+  // Initialize Student Data
+  await db.from('student_data').insert([{ student_name: name, progress: {}, notes: '' }]);
+
+  alert('রেজিস্ট্রেশন সফল হয়েছে! এখন লগইন করো।');
+  tabSignin.click();
+};
+
+// Signin Logic
+document.getElementById('btnSignin').onclick = async () => {
+  const name = document.getElementById('loginName').value.trim();
+  const pw = document.getElementById('loginPw').value.trim();
+
+  if(!name || !pw) return alert('নাম ও পাসওয়ার্ড দাও!');
+
+  const { data, error } = await db.from('profiles').select('*').eq('name', name).eq('password', pw).single();
+  
+  if(error || !data) {
+    alert('ভুল নাম অথবা পাসওয়ার্ড!');
+  } else {
+    currentUser = data;
+    localStorage.setItem('chem_user', JSON.stringify(data));
+    loadDashboard();
   }
+};
+
+// Auto Login check
+const savedUser = localStorage.getItem('chem_user');
+if(savedUser) {
+  currentUser = JSON.parse(savedUser);
+  loadDashboard();
 }
-['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(evt => {
-  document.addEventListener(evt, resetIdleTimer, true);
-});
+
+document.getElementById('btnLogout').onclick = () => {
+  localStorage.removeItem('chem_user');
+  location.reload();
+};
 
 // ==========================================
-// ৪. ড্যাশবোর্ড লজিক ও রেন্ডারিং
+// 4. DASHBOARD & DATA SYNC
 // ==========================================
 const chapters = [
-  {id:1,title:'অধ্যায় ১ — রসায়নের ধারণা',link:'https://drive.google.com/drive/folders/1Ds1yv14TW_U_fEAQ1CmGNVGWCLsu3mZR?usp=drive_link'},
-  {id:2,title:'অধ্যায় ২ — পদার্থের অবস্থা',link:'https://drive.google.com/drive/folders/10VaPzj7WFdz5bLKWtMWC5FbcAdFPrK9b?usp=drive_link'},
-  {id:3,title:'অধ্যায় ৩ — পদার্থের গঠন',link:'https://drive.google.com/drive/folders/1bqV_T9nmr9tR4nlpLbZIOQyEa_Xs0zLB?usp=drive_link'},
-  {id:4,title:'অধ্যায় ৪ — পর্যায় সারণি',link:'https://drive.google.com/drive/folders/10xSn6i4Rpsz2lTUEUZDwHcb_RcHg4Atk?usp=drive_link'},
-  {id:5,title:'অধ্যায় ৫ — রাসায়নিক বন্ধন',link:'https://drive.google.com/drive/folders/13AhbHSl_0ZinblLKlKqQVV6JWUNNTmux?usp=drive_link'},
-  {id:6,title:'অধ্যায় ৬ — মোলের ধারণা ও রাসায়নিক গণনা',link:'https://drive.google.com/drive/folders/1Hq8zkRDLcnCZIwuoRhe9BkeAhF-ffW_h?usp=drive_link'},
-  {id:7,title:'অধ্যায় ৭ — রাসায়িক বিক্রিয়া',link:'https://drive.google.com/drive/folders/1qlsKEjrqASsRC_W7cPiqNrhX_JPahoAH?usp=drive_link'},
-  {id:8,title:'অধ্যায় ৮ — রসায়ন ও শক্তি',link:'https://drive.google.com/drive/folders/13XBRj19VB8wdPC1hfi7Bss2JblTPKJFk?usp=drive_link'},
-  {id:9,title:'অধ্যায় ৯ — এসিড-ক্ষারক সমতা',link:'https://drive.google.com/drive/folders/1yTXT_DG7MGhtEVTEiWig97sd61ORucgN?usp=drive_link'},
-  {id:10,title:'অধ্যায় ১০ — খনিজ সম্পদঃ ধাতু ও অধাতু',link:'https://drive.google.com/drive/folders/1Ii6tbS5hB6tEJBHf4LMWepluDKYRBrUF?usp=drive_link'},
-  {id:11,title:'অধ্যায় ১১ — খনিজ সম্পদঃ জীবাশ্ম',link:'https://drive.google.com/drive/folders/18Yp5bORxS-kZAy4I-A-3wVnFGZGATRNC?usp=drive_link'},
-  {id:12,title:'অধ্যায় ১২ — আমাদের জীবনে রসায়ন',link:'https://drive.google.com/drive/folders/1ahUumVvXBiyy1Urug5cjM5jturpqwq5_?usp=drive_link'}
+  {id:1,title:'অধ্যায় ১ — রসায়নের ধারণা',link:'https://drive.google.com/drive/folders/1Ds1yv14TW_U_fEAQ1CmGNVGWCLsu3mZR'},
+  {id:2,title:'অধ্যায় ২ — পদার্থের অবস্থা',link:'https://drive.google.com/drive/folders/10VaPzj7WFdz5bLKWtMWC5FbcAdFPrK9b'},
+  {id:3,title:'অধ্যায় ৩ — পদার্থের গঠন',link:'https://drive.google.com/drive/folders/1bqV_T9nmr9tR4nlpLbZIOQyEa_Xs0zLB'},
+  {id:4,title:'অধ্যায় ৪ — পর্যায় সারণি',link:'https://drive.google.com/drive/folders/10xSn6i4Rpsz2lTUEUZDwHcb_RcHg4Atk'},
+  {id:5,title:'অধ্যায় ৫ — রাসায়নিক বন্ধন',link:'https://drive.google.com/drive/folders/13AhbHSl_0ZinblLKlKqQVV6JWUNNTmux'},
+  {id:6,title:'অধ্যায় ৬ — মোলের ধারণা ও গণনা',link:'https://drive.google.com/drive/folders/1Hq8zkRDLcnCZIwuoRhe9BkeAhF-ffW_h'},
+  {id:7,title:'অধ্যায় ৭ — রাসায়িক বিক্রিয়া',link:'https://drive.google.com/drive/folders/1qlsKEjrqASsRC_W7cPiqNrhX_JPahoAH'},
+  {id:8,title:'অধ্যায় ৮ — রসায়ন ও শক্তি',link:'https://drive.google.com/drive/folders/13XBRj19VB8wdPC1hfi7Bss2JblTPKJFk'},
+  {id:9,title:'অধ্যায় ৯ — এসিড-ক্ষারক সমতা',link:'https://drive.google.com/drive/folders/1yTXT_DG7MGhtEVTEiWig97sd61ORucgN'},
+  {id:10,title:'অধ্যায় ১০ — খনিজ সম্পদঃ ধাতু ও অধাতু',link:'https://drive.google.com/drive/folders/1Ii6tbS5hB6tEJBHf4LMWepluDKYRBrUF'},
+  {id:11,title:'অধ্যায় ১১ — খনিজ সম্পদঃ জীবাশ্ম',link:'https://drive.google.com/drive/folders/18Yp5bORxS-kZAy4I-A-3wVnFGZGATRNC'},
+  {id:12,title:'অধ্যায় ১২ — আমাদের জীবনে রসায়ন',link:'https://drive.google.com/drive/folders/1ahUumVvXBiyy1Urug5cjM5jturpqwq5_'}
 ];
 
+async function loadDashboard() {
+  document.getElementById('authCard').style.display = 'none';
+  document.getElementById('chaptersArea').style.display = 'block';
+
+  document.getElementById('userProfileName').textContent = currentUser.name;
+  document.getElementById('userProfileMeta').textContent = `Class: ${currentUser.class} | Sec: ${currentUser.section}`;
+
+  // Fetch Cloud Data
+  const { data } = await db.from('student_data').select('*').eq('student_name', currentUser.name).single();
+  if(data) {
+    currentProgress = data.progress || {};
+    document.getElementById('noteText').value = data.notes || '';
+  }
+
+  renderChapters();
+  fetchLeaderboard();
+}
+
+function renderChapters(){
+  const chaptersList = document.getElementById('chaptersList');
+  chaptersList.innerHTML='';
+  chapters.forEach((ch)=>{
+    const div = document.createElement('div');
+    div.className = 'chapter';
+    div.innerHTML = `
+      <div class="chapter-title">${ch.title}</div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button class="btn" style="padding:6px 12px; font-size:11px; width:auto;" onclick="window.open('${ch.link}','_blank')">PDF</button>
+        <input type="checkbox" style="width:18px; height:18px; cursor:pointer;" ${currentProgress[ch.id]?'checked':''} onchange="saveProg(${ch.id}, this.checked)">
+      </div>`;
+    chaptersList.appendChild(div);
+  });
+  updateProgressUI();
+}
+
+async function saveProg(id, isChecked) {
+  currentProgress[id] = isChecked;
+  updateProgressUI();
+  
+  // Sync to Supabase
+  await db.from('student_data').update({ progress: currentProgress }).eq('student_name', currentUser.name);
+  fetchLeaderboard();
+}
+
+function updateProgressUI(){
+  const done = Object.values(currentProgress).filter(v=>v).length;
+  const pct = Math.round((done / chapters.length) * 100);
+  
+  document.getElementById('chartBar').style.width = pct + '%';
+  document.getElementById('progressText').textContent = 'প্রগতি: ' + pct + '%';
+  document.getElementById('chartText').textContent = `সম্পন্ন: ${done}/১২`;
+}
+
+// Leaderboard Logic
+async function fetchLeaderboard() {
+  const { data } = await db.from('student_data').select('student_name, progress');
+  if(!data) return;
+
+  const sorted = data.map(item => {
+    const done = Object.values(item.progress || {}).filter(v=>v).length;
+    return { name: item.student_name, score: done };
+  }).sort((a, b) => b.score - a.score);
+
+  const container = document.getElementById('leaderboardList');
+  container.innerHTML = '';
+  sorted.slice(0, 5).forEach((st, idx) => {
+    container.innerHTML += `
+      <div class="leaderboard-item">
+        <span><b>#${idx+1}</b> ${st.name}</span>
+        <span style="color:var(--accent); font-weight:bold;">${st.score}/১২ টি সম্পন্ন</span>
+      </div>`;
+  });
+}
+
+// Cloud Notepad Save
+document.getElementById('saveNote').onclick = async () => {
+  const text = document.getElementById('noteText').value;
+  await db.from('student_data').update({ notes: text }).eq('student_name', currentUser.name);
+  alert('নোট ক্লাউডে সফলভাবে সেভ হয়েছে!');
+};
+
+// ==========================================
+// 5. PERIODIC TABLE & TIMER
+// ==========================================
 const elements = [
   {sym:'H', name:'হাইড্রোজেন', num:1, mass:1}, {sym:'He', name:'হিলিয়াম', num:2, mass:4},
   {sym:'Li', name:'লিথিয়াম', num:3, mass:7}, {sym:'Be', name:'বেরিলিয়াম', num:4, mass:9},
@@ -457,120 +502,6 @@ const elements = [
   {sym:'N', name:'নাইট্রোজেন', num:7, mass:14}, {sym:'O', name:'অক্সিজেন', num:8, mass:16},
   {sym:'F', name:'ফ্লোরিন', num:9, mass:19}, {sym:'Ne', name:'নিয়ন', num:10, mass:20}
 ];
-
-const pwInput=document.getElementById('pw');
-const unlockBtn=document.getElementById('unlockBtn');
-const chaptersArea=document.getElementById('chaptersArea');
-const lockCard=document.getElementById('lockCard');
-const formGatewayCard=document.getElementById('formGatewayCard');
-const themeBtn=document.getElementById('themeBtn');
-const chaptersList=document.getElementById('chaptersList');
-const progressText=document.getElementById('progressText');
-const chartBar=document.getElementById('chartBar');
-const chartText=document.getElementById('chartText');
-
-if(localStorage.getItem('theme') === 'light') {
-  document.documentElement.setAttribute('data-theme', 'light');
-  themeBtn.textContent = '🌙';
-} else {
-  document.documentElement.removeAttribute('data-theme');
-  themeBtn.textContent = '☀️';
-  localStorage.setItem('theme', 'dark');
-}
-
-themeBtn.addEventListener('click', ()=>{
-  if(document.documentElement.getAttribute('data-theme') === 'light') {
-    document.documentElement.removeAttribute('data-theme');
-    themeBtn.textContent = '☀️';
-    localStorage.setItem('theme', 'dark');
-  } else {
-    document.documentElement.setAttribute('data-theme', 'light');
-    themeBtn.textContent = '🌙';
-    localStorage.setItem('theme', 'light');
-  }
-});
-
-function sendNotification(t, b) {
-  if (Notification.permission === "granted") new Notification(t, { body: b });
-}
-if (Notification.permission !== "denied" && Notification.permission !== "granted") Notification.requestPermission();
-
-// লকিং ফ্লো হ্যান্ডেলার
-async function runUnlock() {
-  const rawInput = pwInput.value.trim();
-  const inputHash = await sha256(rawInput);
-  
-  if(inputHash === HASHED_PW || rawInput === "chem2025") {
-    lockCard.style.transform = "scale(0.9) translateY(-10px)";
-    lockCard.style.opacity = "0";
-    setTimeout(() => {
-      lockCard.style.display = 'none';
-      if(localStorage.getItem('form_submitted') === 'true') {
-        enterDashboard();
-      } else {
-        formGatewayCard.style.display = 'block'; 
-      }
-    }, 200);
-  } else {
-    alert('ভুল পাসওয়ার্ড!');
-  }
-}
-unlockBtn.addEventListener('click', runUnlock);
-pwInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') runUnlock(); });
-
-// ফর্ম অলরেডি পূরণ করেছি বাটনের লজিক
-document.getElementById('alreadyFilledBtn').addEventListener('click', () => {
-  localStorage.setItem('form_submitted', 'true');
-  formGatewayCard.style.transform = "scale(0.9) translateY(-10px)";
-  formGatewayCard.style.opacity = "0";
-  setTimeout(() => {
-    formGatewayCard.style.display = 'none';
-    enterDashboard();
-  }, 200);
-});
-
-function enterDashboard() {
-  chaptersArea.style.display = 'block';
-  renderChapters();
-  resetIdleTimer();
-  sendNotification("স্বাগতম!", "ড্যাশবোর্ড সফলভাবে আনলক হয়েছে।");
-}
-
-function renderChapters(){
-  chaptersList.innerHTML='';
-  const saved = JSON.parse(localStorage.getItem('chem_progress')) || {};
-  chapters.forEach((ch, idx)=>{
-    const div=document.createElement('div');
-    div.className='chapter';
-    div.style.animation = `cardFadeIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) ${idx * 0.04}s backwards`;
-    div.innerHTML=`
-      <div class="chapter-title">${ch.title}</div>
-      <div style="display:flex; gap:8px; align-items:center;">
-        <button class="btn" style="padding:6px 12px; font-size:11px;" onclick="window.open('${ch.link}','_blank')">PDF</button>
-        <input type="checkbox" style="width:18px; height:18px; cursor:pointer;" ${saved[ch.id]?'checked':''} onchange="saveProg(${ch.id}, this.checked)">
-      </div>`;
-    chaptersList.appendChild(div);
-  });
-  updateProgress();
-}
-
-function saveProg(id, isChecked) {
-  let saved = JSON.parse(localStorage.getItem('chem_progress')) || {};
-  saved[id] = isChecked;
-  localStorage.setItem('chem_progress', JSON.stringify(saved));
-  updateProgress();
-}
-
-function updateProgress(){
-  const saved = JSON.parse(localStorage.getItem('chem_progress')) || {};
-  const done = Object.values(saved).filter(v=>v).length;
-  const pct = Math.round((done / chapters.length) * 100);
-  
-  if(chartBar) chartBar.style.width = pct + '%';
-  if(progressText) progressText.textContent = 'প্রগতি: ' + pct + '%';
-  if(chartText) chartText.textContent = `সম্পন্ন: ${done}/১২`;
-}
-
 const pTable = document.getElementById('periodicTable');
 elements.forEach(el => {
   const cell = document.createElement('div');
@@ -583,51 +514,34 @@ elements.forEach(el => {
   };
   pTable.appendChild(cell);
 });
-
 document.getElementById('closeModal').onclick = () => document.getElementById('modalBackdrop').classList.remove('show');
 
+// Timer
 let timerInterval = null, timerSec = 25 * 60;
-const timeDisplay = document.getElementById('timeDisplay');
-const timerState = document.getElementById('timerState');
-const customMin = document.getElementById('customMin');
-
-if(customMin) {
-  customMin.onchange = () => {
-    timerSec = customMin.value * 60;
-    timeDisplay.textContent = `${customMin.value.toString().padStart(2,'0')}:00`;
-  };
-}
-
 document.getElementById('startTimer').onclick = () => {
   if (timerInterval) return;
-  timerState.textContent = 'চলছে';
-  timerState.style.color = '#3ea0ff';
   timerInterval = setInterval(() => {
     timerSec--;
     let m = Math.floor(timerSec/60).toString().padStart(2,'0');
     let s = (timerSec%60).toString().padStart(2,'0');
-    timeDisplay.textContent = `${m}:${s}`;
-    
-    if(timerSec <= 0) {
-      clearInterval(timerInterval);
-      timerInterval = null;
-      sendNotification("সময় শেষ!", "৫ মিনিটের একটি ব্রেক নাও।");
-      alert('স্টাডি সেশন সম্পন্ন!');
-      timerState.textContent = 'সম্পন্ন';
-      timerState.style.color = '#10b981';
-    }
+    document.getElementById('timeDisplay').textContent = `${m}:${s}`;
+    if(timerSec <= 0) { clearInterval(timerInterval); alert('স্টাডি সেশন সম্পন্ন!'); }
   }, 1000);
 };
+document.getElementById('pauseTimer').onclick = () => { clearInterval(timerInterval); timerInterval = null; };
+document.getElementById('resetTimer').onclick = () => { clearInterval(timerInterval); timerInterval = null; timerSec = 25 * 60; document.getElementById('timeDisplay').textContent = "25:00"; };
 
-document.getElementById('pauseTimer').onclick = () => { clearInterval(timerInterval); timerInterval = null; timerState.textContent = 'পজড'; timerState.style.color = '#ef4444'; };
-document.getElementById('resetTimer').onclick = () => { clearInterval(timerInterval); timerInterval = null; timerSec = customMin.value * 60; timeDisplay.textContent = `${customMin.value.toString().padStart(2,'0')}:00`; timerState.textContent = 'প্রস্তুত'; timerState.style.color = '#10b981'; };
-
-const noteText = document.getElementById('noteText');
-if(noteText) {
-  noteText.value = localStorage.getItem('chem_note') || '';
-  document.getElementById('saveNote').onclick = () => { localStorage.setItem('chem_note', noteText.value); alert('সংরক্ষিত হয়েছে!'); };
-  document.getElementById('clearNote').onclick = () => { if(confirm('মুছবেন?')) { noteText.value = ''; localStorage.removeItem('chem_note'); } };
-}
+// Theme Toggle
+const themeBtn = document.getElementById('themeBtn');
+themeBtn.onclick = () => {
+  if(document.documentElement.getAttribute('data-theme') === 'light') {
+    document.documentElement.removeAttribute('data-theme');
+    themeBtn.textContent = '☀️';
+  } else {
+    document.documentElement.setAttribute('data-theme', 'light');
+    themeBtn.textContent = '🌙';
+  }
+};
 </script>
 </body>
 </html>
